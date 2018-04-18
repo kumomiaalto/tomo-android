@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="io.proximi.proximiiolibrary:proximiiomap-0.4.4">
+    <CLASSES>
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/proximiiomap-0.4.4.aar/79089f4b9cb4d544f4a41f56f879fca7/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/proximiiomap-0.4.4.aar/79089f4b9cb4d544f4a41f56f879fca7/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.proximi.proximiiolibrary/proximiiomap/0.4.4/64d8b4475de6bf35e86419ea93ee3ed9d998ff27/proximiiomap-0.4.4-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES />
+  </library>
+</component>
