@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "ProximiioDemo";
 
-    public static final String AUTH = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImlzcyI6ImU0ZjNkYmUyLTRlOWQtNDA1My1iYzljLTM5OTU1OWQwOWE1ZCIsInR5cGUiOiJhcHBsaWNhdGlvbiIsImFwcGxpY2F0aW9uX2lkIjoiNjlkNGYzNTMtZjc2NS00MDc4LWE0NDEtYzNhMDhhNzJiYzJiIn0.IY8nfXX35yDHd0JqU6ZqZ3zVClwv1DKLdAkZEk-tn0Y"; // TODO: Replace with your own!
+    public static final String AUTH = "add_token_here"; // TODO: Replace with your own!
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
