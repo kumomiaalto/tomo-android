@@ -85,6 +85,15 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void onTomoBtnClick(View view) {
+        Intent intent = new Intent(this, DefaultScreenActivity.class);
+        startActivity(intent);
+    }
+
+    public void onTomoNavigationBtnClick(View view) {
+        Intent intent = new Intent(this, NavigationActivity.class);
+        startActivity(intent);
+    }
     public void onChooseBuildingBtnClick(View view) {
         Intent intent = new Intent(this, BuildingChooserActivity.class);
         intent.putExtra(EXTRAS_HELPER_NEXT_ACTIVITY, MapActivity.class);

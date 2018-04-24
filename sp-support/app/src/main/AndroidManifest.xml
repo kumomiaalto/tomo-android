@@ -39,6 +39,16 @@
             android:parentActivityName=".MainActivity"
             android:launchMode="singleTop"/>
 
+        <activity android:name=".DefaultScreenActivity"
+            android:screenOrientation="portrait"
+            android:label="Tomo"
+            android:parentActivityName=".MainActivity"/>
+
+        <activity android:name=".NavigationActivity"
+            android:screenOrientation="portrait"
+            android:label="Tomo Navigation"
+            android:parentActivityName=".DefaultScreenActivity"/>
+
         <activity android:name=".MapActivity"
             android:screenOrientation="portrait"
             android:label="Map"
@@ -138,6 +148,7 @@
             android:screenOrientation="portrait"
             android:label="3D Fill Extrusion"
             android:parentActivityName=".BuildingChooserActivity"/>
+
 
     </application>
 

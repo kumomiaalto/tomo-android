@@ -766,6 +766,43 @@
 
             </LinearLayout>
 
+
+            <TextView
+                style="@style/SeparatorTextStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="TOMO" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onTomoBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="TOMO APP" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Start using Tomo interface" />
+
+            </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 
