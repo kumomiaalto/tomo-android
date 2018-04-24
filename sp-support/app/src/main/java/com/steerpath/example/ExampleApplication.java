@@ -73,7 +73,7 @@ public class ExampleApplication extends Application {
         SteerpathClient.StartConfig config =  new SteerpathClient.StartConfig.Builder()
                 // MANDATORY:
                 .name("STEERPATH OFFICE")
-                .apiKey("OUR API_KEY HERE")
+                .apiKey("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZXMiOiJiYXNlOnI7YWNyZS1wcm9kX3N0YXRpYzpyO2FjcmUtcHJvZF9keW5hbWljOnIiLCJqdGkiOiJjNDU3MzA1Mi1hYzc4LTRjZDItOGZlNS1hMTMyM2JiZThkZDYiLCJzdWIiOiJhY3JlLXByb2QifQ.-pyZII554ZJ8GVJZJXcZfXhUOH4tv9evcA6-fMxH978")
 
                 // OPTIONAL:
                 // 1. OfflineBundle contains metadata, style, positioning, routing and vector tile data. Makes map features usable with bad

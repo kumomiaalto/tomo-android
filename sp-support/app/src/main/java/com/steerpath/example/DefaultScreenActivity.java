@@ -1,4 +1,4 @@
-package com.example.helena.tomo;
+package com.steerpath.example;
 
 import android.content.Context;
 import android.content.Intent;
