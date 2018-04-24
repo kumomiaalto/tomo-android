@@ -1,0 +1,780 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    android:orientation="vertical">
+
+    <!-- This is going to be looooong but simple. Probably needs some fancy adapter thing. -->
+    <ScrollView
+        android:id="@+id/main_activity_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="4dp">
+
+            <TextView
+                style="@style/SeparatorTextStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="POSITIONING &amp; MAPS" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onQuickMapBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="QUICK MAP" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Fastest way to get map on the screen. Map opens in smallest zoom level. If map is white, your map style probably does not have map tiles for location 0/0/0." />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onChooseBuildingBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="BASIC MAP" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Moves camera position to selected building. Monitor tool enabled." />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onFakeLocationBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="FAKE LOCATION" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Touch map to fake location. Toggle button to set fake location or marker." />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onEIDBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="EID UPDATER" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="EID packages are required for positioning to work if eid-beacons are in use" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onPositioningBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="POSITIONING API &amp; REQUIREMENTS" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Positioning without a map. Permissions, enable Bluetooth and Location Services." />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onCustomLocationSourceBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="POSITIONING PARAMETERS" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Enables GPS" />
+
+            </LinearLayout>
+
+            <TextView
+                style="@style/SeparatorTextStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="ANNOTATIONS" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onQueryRenderedFeaturesBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="MARKERS" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Touch icon on the map to query rendered features and set marker" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onSymbolLayerPOIBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="SYMBOL LAYERS" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="In Mapbox 5.2, MarkerViews are deprecated and map with hundreds of MarkerViews suffers a performance hit." />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onFillExtrusion3DBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="3D FILL EXTRUSION" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Touch map for fancy 3D effects!" />
+
+            </LinearLayout>
+
+            <TextView
+                style="@style/SeparatorTextStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="DIRECTIONS" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onSimpleNavigationBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="ROUTE PREVIEW" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Query rendered features, set marker, get directions with route preview" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onCustomDirectionsBadgeBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="CUSTOM DIRECTIONS UI" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Customize appearance of route preview badge, step-by-step badge and directions list" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onCustomRouteBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="CUSTOM ROUTE LINE" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Customize the appearance of route line" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onDirectionsApiBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="DIRECTIONS API" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Directions without a map. Selects two POIs and uses directions engine to calculate route." />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onWaypointsBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="WAYPOINTS" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Navigate through multiple waypoints" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onCustomWaypointUIBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="CUSTOM WAYPOINT UI" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Customize appearance of route preview badge and waypoint badge when using Waypoint API" />
+
+            </LinearLayout>
+
+            <TextView
+                style="@style/SeparatorTextStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="GEOFENCE" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onGeofenceBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="GEOFENCE TEST" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Set geofence areas from Resources or Meta. Add custom geofences by touching the map. Visualise geofence with Polygon." />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onGeofenceTransitBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="PUBLIC/TRANSIT AREAS IN AIRPORTS" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Example scenario: airport has public and transit sides and passangers go to transit side through Immigration. App gives a warning message if user attempts to navigate from transit side back to public side." />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onNoBeaconZoneBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="NO BEACON ZONE" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Example scenario: site has an area with no installed beacons. When user enters such area, notify with 'This area has no positioning' - prompt." />
+
+            </LinearLayout>
+
+            <TextView
+                style="@style/SeparatorTextStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="META" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onMetaExampleBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="META LOADER" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Loads buildings and POIs from the Steerpath server" />
+
+            </LinearLayout>
+
+            <TextView
+                style="@style/SeparatorTextStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="CACHE" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onCustomOfflineBundleUpdaterBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="OFFLINE BUNDLE UPDATER" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Custom UI for Offline Bundle Updater for manual handling" />
+
+            </LinearLayout>
+
+            <TextView
+                style="@style/SeparatorTextStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="LEGACY" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:onClick="onSteerpathMapViewBtnClick"
+                android:orientation="vertical">
+
+                <TextView
+                    style="?android:attr/textAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:layout_marginTop="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="MAPVIEW" />
+
+                <TextView
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/main_activity_margin_text"
+                    android:layout_marginLeft="@dimen/main_activity_margin_text"
+                    android:layout_marginRight="@dimen/main_activity_margin_text"
+                    android:gravity="left"
+                    android:text="Uses SteerpathMapView instead of SteerpathMapFragment" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <android.support.v4.widget.ContentLoadingProgressBar
+        android:id="@+id/main_activity_loading"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:visibility="visible" />
+
+</LinearLayout>

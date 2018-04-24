@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/tag_remove_ext"
+        android:icon="@drawable/ic_cancel"
+        android:title="Tag test"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/tag_add_ext"
+        android:icon="@drawable/ic_add"
+        android:title="Tag test"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/show_soures_and_layers"
+        android:icon="@drawable/ic_layers"
+        android:title="Show Sources and Layers"
+        app:showAsAction="always"/>
+</menu>

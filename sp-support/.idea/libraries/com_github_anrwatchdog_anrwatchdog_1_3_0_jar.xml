@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="com.github.anrwatchdog:anrwatchdog:1.3.0@jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.anrwatchdog/anrwatchdog/1.3.0/deede8906f849e103ad5b1311c0776a3279151cb/anrwatchdog-1.3.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.anrwatchdog/anrwatchdog/1.3.0/8b8b9ceb0adbaec839a7e0b53b47b82e6ca0f69e/anrwatchdog-1.3.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

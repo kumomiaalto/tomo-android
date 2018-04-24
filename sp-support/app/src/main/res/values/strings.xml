@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Steerpath Examples</string>
+
+
+    <string name="about">About</string>
+    <string name="greetings_text">Contains examples and developer tools. You can find the complete Steerpath Android SDK documentation at:</string>
+    <string name="sdk_url">https://sdk.steerpath.com</string>
+
+    <string name="found_no_buildings">Found no buildings</string>
+    <string name="tags">tags: %1$s</string>
+    <string name="floor">floor index: %1$d</string>
+    <string name="id">id: %1$s</string>
+
+    <string name="example_translation_skytrain">Skytrain</string>
+
+    <string name="sp_fileprovider_authority">com.steerpath.example.fileprovider</string>
+
+</resources>

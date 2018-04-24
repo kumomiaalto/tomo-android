@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="com.steerpath:MapboxGLAndroidSDK-android-5.5.0-steerpath-rc1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/MapboxGLAndroidSDK-android-5.5.0-steerpath-rc1.aar/7116602257a49b5ce1f0ce61e869f8cd/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/MapboxGLAndroidSDK-android-5.5.0-steerpath-rc1.aar/7116602257a49b5ce1f0ce61e869f8cd/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
