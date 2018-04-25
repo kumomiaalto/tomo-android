@@ -8,26 +8,31 @@ import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.location.Location;
-import android.location.LocationListener;
 
 import com.steerpath.sdk.location.FusedLocationProviderApi;
 import com.steerpath.sdk.location.LocationRequest;
 import com.steerpath.sdk.utils.internal.Utils;
 
-public class NavigationActivity extends AppCompatActivity implements LocationListener {
-
+public class NavigationActivity extends AppCompatActivity {
+  
+    private String nextDestination = "";
+    private String landmark = "";
+    private String directionText = "";
+    private String directionImage = "";
+    private String arrivalTime = "";
     private static final int REQUEST_PERMISSIONS = 1;
     private static final int REQUEST_ENABLE_BT = 2;
     private TextView info;
 
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.navigation);
         switchToDefaultScreenMode();
+        updateDirection();
     }
 
 
@@ -101,26 +106,34 @@ public class NavigationActivity extends AppCompatActivity implements LocationLis
             }
         });
     }
-
-
+    public void updateDirection() {
+        ImageView landmark = (ImageView) findViewById(R.id.landmark);
+        ImageView directionImg = (ImageView) findViewById(R.id.direction_img);
+        TextView directionText = (TextView) findViewById(R.id.direction_text);
+        
+        landmark.setImageResource(R.mipmap.escalator);
+        directionImg.setImageResource(R.mipmap.right_arrow);
+        directionText.setText("Turn right towards the escalator");
+    }
+    
     @Override
     public void onLocationChanged(Location location) {
-
+        
     }
-
+    
     @Override
     public void onStatusChanged(String s, int i, Bundle bundle) {
-
+        
     }
-
+    
     @Override
     public void onProviderEnabled(String s) {
-
+        
     }
-
+    
     @Override
     public void onProviderDisabled(String s) {
-
+        
     }
-}
 
+}
