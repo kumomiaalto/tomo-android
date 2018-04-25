@@ -3,6 +3,8 @@ package com.steerpath.example;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
@@ -15,7 +17,7 @@ import com.steerpath.sdk.location.FusedLocationProviderApi;
 import com.steerpath.sdk.location.LocationRequest;
 import com.steerpath.sdk.utils.internal.Utils;
 
-public class NavigationActivity extends AppCompatActivity {
+public class NavigationActivity extends AppCompatActivity implements LocationListener {
   
     private String nextDestination = "";
     private String landmark = "";
