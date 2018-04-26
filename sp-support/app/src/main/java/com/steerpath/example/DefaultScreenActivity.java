@@ -15,8 +15,8 @@ import java.text.DateFormat;
 public class DefaultScreenActivity extends AppCompatActivity {
 
     private String gate = "G14";
-    private String boarding = "14:20";
-    private int timeToSecurity = 3;
+    private String boarding = "11:10";
+    private int timeToGate = 35;
     private int freetime = 25;
 
 
@@ -44,12 +44,12 @@ public class DefaultScreenActivity extends AppCompatActivity {
     public void setFlightInfo() {
         TextView gate = (TextView) findViewById(R.id.gate);
         TextView boarding = (TextView) findViewById(R.id.boarding);
-        TextView timeToSec = (TextView) findViewById(R.id.timeToSecurity);
+        TextView timeToSec = (TextView) findViewById(R.id.timeToGate);
         TextView freetime = (TextView) findViewById(R.id.freetime);
 
         gate.setText(this.gate);
         boarding.setText(this.boarding);
-        timeToSec.setText(this.timeToSecurity+"min");
+        timeToSec.setText(this.timeToGate+"min");
         freetime.setText(this.freetime+"min");
     }
 
