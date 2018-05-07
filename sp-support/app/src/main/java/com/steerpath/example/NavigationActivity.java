@@ -123,47 +123,47 @@ public class NavigationActivity extends AppCompatActivity {
             public void run() {
                 updateDirection("straight", "");
             }
-        }, 2000);
+        }, 3000);
         handler.postDelayed(new Runnable() {
             public void run() {
                 updateDirection("left", "");
-            }
-        }, 5000);
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                updateDirection("straight", "");
             }
         }, 7000);
         handler.postDelayed(new Runnable() {
             public void run() {
+                updateDirection("straight", "");
+            }
+        }, 10000);
+        handler.postDelayed(new Runnable() {
+            public void run() {
                 updateDirection("left", "");
             }
-        }, 12000);
+        }, 22000);
         handler.postDelayed(new Runnable() {
             public void run() {
                 updateDirection("right", "");
             }
-        }, 14000);
+        }, 28000);
         handler.postDelayed(new Runnable() {
             public void run() {
                 updateDirection("straight", "");
             }
-        }, 16000);
+        }, 31000);
         handler.postDelayed(new Runnable() {
             public void run() {
                 updateDirection("left u-turn", "escalator");
             }
-        }, 27000);
+        }, 68000);
         handler.postDelayed(new Runnable() {
             public void run() {
                 updateDirection("right", "");
             }
-        }, 34000);
+        }, 86000);
         handler.postDelayed(new Runnable() {
             public void run() {
                 updateDirection("straight", "");
             }
-        }, 36000);
+        }, 89000);
         handler.postDelayed(new Runnable() {
             public void run() {
                 ImageView directionImg = (ImageView) findViewById(R.id.direction_img);
@@ -171,7 +171,7 @@ public class NavigationActivity extends AppCompatActivity {
                 directionImg.setImageResource(directionVisualOutputMap.get("right"));
                 directionText.setText("Your gate is on your right");
             }
-        }, 40000);
+        }, 99000);
     }
     
 

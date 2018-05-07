@@ -16,7 +16,7 @@ public class DefaultScreenActivity extends AppCompatActivity {
 
     private String gate = "G14";
     private String boarding = "11:10";
-    private int timeToGate = 35;
+    private int timeToGate = 10;
     private int freetime = 25;
 
 
