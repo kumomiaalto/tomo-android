@@ -1,4 +1,4 @@
-pr-support/.gradle/*
-sp-support/.gradle/*
-sp-support/.idea/*
-pr-support7.idea/*
+/pr-support/.gradle/*
+/sp-support/.gradle/*
+/sp-support/.idea/*
+/pr-support7.idea/*
