@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    tools:context=".activity.TicketInfoActivity">
+
+    <View
+        android:id="@+id/vector"
+        android:layout_width="255.4dp"
+        android:layout_height="170.1dp"
+        android:layout_marginBottom="63dp"
+        android:layout_marginTop="62dp"
+        android:background="@drawable/screen_view"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.51"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.51" />
+
+    <View
+        android:id="@+id/ticketInfoBox"
+        android:layout_width="122.9dp"
+        android:layout_height="158.7dp"
+        android:layout_marginStart="130dp"
+        android:background="@drawable/ticket_info_box_shape"
+        app:layout_constraintTop_toTopOf="@id/vector"
+        app:layout_constraintBottom_toBottomOf="@id/vector"
+        app:layout_constraintLeft_toLeftOf="@id/vector"
+        tools:layout_editor_absoluteY="69dp" />
+
+    <View
+        android:id="@+id/ticketInfoBoxHeader"
+        android:layout_width="122.9dp"
+        android:layout_height="37.9dp"
+        app:layout_constraintTop_toTopOf="@id/ticketInfoBox"
+        app:layout_constraintLeft_toLeftOf="@id/vector"
+        android:layout_marginStart="130dp"
+        android:background="@drawable/ticket_info_box_header"
+        />
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/ticketInfoBox"
+        app:layout_constraintLeft_toLeftOf="@id/vector"
+        android:layout_marginStart="140dp"
+        android:layout_marginTop="50dp"
+        android:text="Test"
+        tools:layout_editor_absoluteX="305dp"
+        tools:layout_editor_absoluteY="119dp" />
+
+</android.support.constraint.ConstraintLayout>

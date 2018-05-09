@@ -1,6 +1,5 @@
-package fi.kumomi.tomo.observable
+package fi.kumomi.tomo.flowable
 
-import android.util.Log
 import fi.kumomi.tomo.model.ProximiEvent
 import fi.kumomi.tomo.model.ProximiLocation
 import io.proximi.proximiiolibrary.ProximiioAPI
@@ -10,7 +9,7 @@ import io.proximi.proximiiolibrary.ProximiioListener
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 
-class ProximiEventsObservable(private val proximiioAPI: ProximiioAPI?) {
+class ProximiEventsFlowable(private val proximiioAPI: ProximiioAPI?) {
     fun create(): Flowable<ProximiEvent> {
         return Flowable.create({ emitter ->
             proximiioAPI?.setListener(object : ProximiioListener() {

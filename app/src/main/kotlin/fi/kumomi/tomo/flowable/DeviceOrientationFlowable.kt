@@ -1,4 +1,4 @@
-package fi.kumomi.tomo.observable
+package fi.kumomi.tomo.flowable
 
 import android.hardware.Sensor
 import android.hardware.SensorManager
@@ -8,7 +8,7 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.FlowableOnSubscribe
 
-class DeviceOrientationObservable(private val sensors: Array<Sensor>, private val sensorManager: SensorManager) {
+class DeviceOrientationFlowable(private val sensors: Array<Sensor>, private val sensorManager: SensorManager) {
     fun create(): Flowable<SensorEvent> {
         var sensorListener : SensorEventListener? = null
 
