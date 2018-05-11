@@ -9,15 +9,15 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 class GeofencesObservable {
-//    fun create(): Observable<Geofence> {
-//        val retrofit = Retrofit.Builder()
-//                .baseUrl(Config.PROXIMI_API_BASE_URL)
-//                .addConverterFactory(MoshiConverterFactory.create())
-//                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-//                .build()
-//
-//        val proximiApi = retrofit.create(ProximiApi::class.java)
-//
-////        return proximiApi.getGeofences()
-//    }
+    fun create(): Observable<List<Geofence>> {
+        val retrofit = Retrofit.Builder()
+                .baseUrl(Config.PROXIMI_API_BASE_URL)
+                .addConverterFactory(MoshiConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .build()
+
+        val proximiApi = retrofit.create(ProximiApi::class.java)
+
+        return proximiApi.getGeofences(Config.PROXIMI_API_KEY)
+    }
 }
