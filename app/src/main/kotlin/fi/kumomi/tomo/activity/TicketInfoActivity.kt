@@ -13,39 +13,53 @@ import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_ticket_info.*
+import org.joda.time.DateTimeZone
+import org.joda.time.LocalDateTime
+import org.joda.time.format.ISODateTimeFormat
+import java.util.*
+
 
 class TicketInfoActivity : AppCompatActivity() {
     private val tag = "TicketActivity"
     private var observable: Observable<AirlineTicket>? = null
-    private var switchObservable = PublishSubject.create<Boolean>()
+    private var flightInfoObservableSwitch = PublishSubject.create<Boolean>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.i(tag, "Activity Created")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ticket_info)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+
         observable = AirlineTicketObservable().create()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .repeatWhen { it.delay(5, TimeUnit.SECONDS) }
                 .retryWhen { it.flatMap { Observable.timer(5, TimeUnit.SECONDS) } }
 
-        switchObservable
+        flightInfoObservableSwitch
                 .switchMap { if(it) observable else Observable.never() }
                 .subscribe {
                     name.text = "${it.firstName} ${it.lastName}"
+                    flightTime.text = ISODateTimeFormat.dateTimeParser()
+                            .parseDateTime(it.departureTime)
+                            .withZone(DateTimeZone.forTimeZone(TimeZone.getDefault()))
+                            .toString("HH:mm")
+                    seat.text = it.seat
+                    ticketClass.text = it.ticketClass
+                    gate.text = it.gate
+                    flightNumber.text = it.flightNumber
+                    sourceDestination.text = "${it.source} → ${it.destination}"
+                    currentTime.text = LocalDateTime().toString("HH:mm")
+                    Log.e(tag, LocalDateTime().toString("HH:mm"))
                 }
     }
 
     override fun onResume() {
         super.onResume()
-        Log.i(tag, "Activity resumed")
-        switchObservable.onNext(true)
+        flightInfoObservableSwitch.onNext(true)
     }
 
     override fun onPause() {
         super.onPause()
-        Log.i(tag, "Activity Paused")
-        switchObservable.onNext(false)
+        flightInfoObservableSwitch.onNext(false)
     }
 }

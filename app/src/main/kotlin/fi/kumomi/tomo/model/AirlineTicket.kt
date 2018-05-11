@@ -11,6 +11,8 @@ data class AirlineTicket(
         @Json(name = "destination") val destination: String?,
         @Json(name = "flight_number") val flightNumber: String?,
         @Json(name = "ticket_number") val ticketNumber: String?,
+        @Json(name = "seat") val seat: String?,
+        @Json(name = "ticket_class") val ticketClass: String?,
         @Json(name = "boarding_time") val boardingTime: String?,
         @Json(name = "departure_time") val departureTime: String?,
         @Json(name = "terminal") val terminal: String?,
