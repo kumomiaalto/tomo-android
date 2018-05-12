@@ -2,11 +2,8 @@ package fi.kumomi.tomo.activity
 
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.content.pm.PackageManager
-import android.hardware.GeomagneticField
 import android.hardware.Sensor
 import android.hardware.SensorManager
-import android.location.Location
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -99,7 +96,7 @@ class TicketInfoActivity : AppCompatActivity() {
 
                     if (it.eventType == DevicePosOrientEvent.ORIENTATION_EVENT) {
 
-                        if (it.sensorEvent?.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR)) {
+                        if (it.sensorEvent?.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)) {
                             Log.i(tag,"I got here man")
                             mAccelerometerReading = it.sensorEvent?.values!!.clone()
 //                            System.arraycopy(it.sensorEvent?.values, 0, mAccelerometerReading, 0, mAccelerometerReading.size)

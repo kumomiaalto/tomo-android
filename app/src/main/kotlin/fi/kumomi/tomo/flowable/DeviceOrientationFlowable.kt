@@ -20,10 +20,8 @@ class DeviceOrientationFlowable {
                     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
                 }
 
-
                 val accelerationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
                 val magneticFieldSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
-
 
                 sensorManager.registerListener(sensorListener, accelerationSensor, SensorManager.SENSOR_DELAY_NORMAL,  SensorManager.SENSOR_DELAY_UI)
                 sensorManager.registerListener(sensorListener, magneticFieldSensor, SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_UI)
