@@ -2,7 +2,11 @@ package fi.kumomi.tomo.activity
 
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
+import android.hardware.GeomagneticField
+import android.hardware.Sensor
 import android.hardware.SensorManager
+import android.location.Location
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -13,6 +17,8 @@ import fi.kumomi.tomo.TomoApplication
 import fi.kumomi.tomo.flowable.DeviceOrientationFlowable
 import fi.kumomi.tomo.flowable.ProximiEventsFlowable
 import fi.kumomi.tomo.model.AirlineTicket
+import fi.kumomi.tomo.model.DevicePosOrientEvent
+import fi.kumomi.tomo.model.Geofence
 import fi.kumomi.tomo.observable.AirlineTicketObservable
 import io.proximi.proximiiolibrary.ProximiioAPI
 import io.proximi.proximiiolibrary.ProximiioOptions
@@ -43,6 +49,8 @@ class TicketInfoActivity : AppCompatActivity() {
 
         val sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
 
+        Log.i(tag, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER).toString())
+
         val proximiOptions = ProximiioOptions()
                 .setNotificationMode(ProximiioOptions.NotificationMode.DISABLED)
         proximiApi = ProximiioAPI(tag, this, proximiOptions)
@@ -52,7 +60,7 @@ class TicketInfoActivity : AppCompatActivity() {
         flightInfoObservable = AirlineTicketObservable().create()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .repeatWhen { it.delay(5, TimeUnit.SECONDS) }
+//                .repeatWhen { it.delay(5, TimeUnit.SECONDS) }
                 .retryWhen { it.flatMap { Observable.timer(5, TimeUnit.SECONDS) } }
 
         val posOrientationFlowable = Flowable.merge(
@@ -62,7 +70,78 @@ class TicketInfoActivity : AppCompatActivity() {
 
         posOrientationFlowable.observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
+                    var mAccelerometerReading = FloatArray(3)
+                    var mMagnetometerReading = FloatArray(3)
 
+                    val mRotationMatrix = FloatArray(16)
+                    val I = FloatArray(16)
+                    val mOrientationAngles = FloatArray(3)
+
+//                    Log.i(tag, it.eventType)
+                    val app = applicationContext as TomoApplication
+                    val currentPosition = app.proximiPosition
+                    var pointerGeofence: Geofence? = null
+                    var direction = 0F
+
+                    if (it.eventType == DevicePosOrientEvent.POSITION_EVENT) {
+                        currentPosition["lat"] = it.proximiEvent?.location?.lat
+                        currentPosition["lng"] = it.proximiEvent?.location?.lon
+                    }
+
+                    if (app.geofences != null) {
+                        val iterator = app.geofences!!.listIterator()
+                        for (geofence in iterator) {
+                            if (geofence.name == "lobby_stairs") {
+                                pointerGeofence = geofence
+                            }
+                        }
+                    }
+
+                    if (it.eventType == DevicePosOrientEvent.ORIENTATION_EVENT) {
+
+                        if (it.sensorEvent?.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR)) {
+                            Log.i(tag,"I got here man")
+                            mAccelerometerReading = it.sensorEvent?.values!!.clone()
+//                            System.arraycopy(it.sensorEvent?.values, 0, mAccelerometerReading, 0, mAccelerometerReading.size)
+                        }
+
+                        if (it.sensorEvent?.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)) {
+                            mMagnetometerReading = it.sensorEvent?.values!!.clone()
+//                            System.arraycopy(it.sensorEvent?.values, 0, mMagnetometerReading, 0, mMagnetometerReading.size)
+                        }
+
+                        name.text = SensorManager.getRotationMatrix(mRotationMatrix, null, mAccelerometerReading, mMagnetometerReading).toString()
+//                        Log.i(tag, SensorManager.getRotationMatrix(mRotationMatrix, null, mAccelerometerReading, mMagnetometerReading).toString())
+
+                        SensorManager.getOrientation(mRotationMatrix, mOrientationAngles)
+//                        Log.i(tag, mOrientationAngles[0].toString())
+//                        Log.i(tag, mOrientationAngles[1].toString())
+//                        var azimuth = it.sensorEvent!!.values[0]
+//                        Log.i(tag, azimuth.toString())
+//                        val baseAzimuth = azimuth
+//
+//                        val currentLocationObj = Location("current")
+//                        currentLocationObj.latitude = currentPosition["lat"]!!
+//                        currentLocationObj.longitude = currentPosition["lng"]!!
+//
+//                        val destinationLocationObj = Location("destination")
+//                        destinationLocationObj.latitude = pointerGeofence.latlng.lat
+//                        destinationLocationObj.longitude = pointerGeofence.latlng.lng
+//
+//                        val geoField = GeomagneticField(currentLocationObj.latitude.toFloat(), currentLocationObj.longitude.toFloat(), currentLocationObj.altitude.toFloat(), System.currentTimeMillis())
+//                        azimuth -= geoField.declination
+//
+//                        var bearingTo = currentLocationObj.bearingTo(destinationLocationObj)
+//                        if (bearingTo < 0)
+//                            bearingTo += 360
+//
+//                        direction = bearingTo + azimuth
+//
+//                        if (direction < 0)
+//                            direction += 360
+                    }
+
+//                    Log.i(tag, direction.toString())
                 }
 
         flightInfoObservableSwitch

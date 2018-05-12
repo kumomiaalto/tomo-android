@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "fi.kumomi.tomo"
-        minSdkVersion 17
+        minSdkVersion 19
         targetSdkVersion 27
         versionCode 3
         versionName "1.2"

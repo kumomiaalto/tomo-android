@@ -16,26 +16,24 @@ class ProximiEventsFlowable {
             return Flowable.create({ emitter ->
                 proximiioAPI?.setListener(object : ProximiioListener() {
                     override fun geofenceEnter(geofence: ProximiioGeofence?) {
-                        val proximiEvent = ProximiEvent(event_type = ProximiEvent.GEOFENCE_ENTER_EVENT, geofence = geofence)
-                        emitter.onNext(DevicePosOrientEvent(proximiEvent = proximiEvent, eventType = "proximi"))
+                        val proximiEvent = ProximiEvent(geofence = geofence)
+                        emitter.onNext(DevicePosOrientEvent(proximiEvent = proximiEvent, eventType = DevicePosOrientEvent.GEOFENCE_ENTER_EVENT))
                     }
 
                     override fun geofenceExit(geofence: ProximiioGeofence?, dwellTime: Long?) {
-                        val proximiEvent = ProximiEvent(event_type = ProximiEvent.GEOFENCE_EXIT_EVENT, geofence = geofence, dwellTime = dwellTime)
-                        emitter.onNext(DevicePosOrientEvent(proximiEvent = proximiEvent, eventType = "proximi"))
+                        val proximiEvent = ProximiEvent(geofence = geofence, dwellTime = dwellTime)
+                        emitter.onNext(DevicePosOrientEvent(proximiEvent = proximiEvent, eventType = DevicePosOrientEvent.GEOFENCE_EXIT_EVENT))
                     }
 
                     override fun position(lat: Double, lon: Double, accuracy: Double) {
-                        val proximiEvent = ProximiEvent(event_type = ProximiEvent.POSITION_EVENT,
-                                location = ProximiLocation(lat = lat, lon = lon, accuracy = accuracy))
-                        emitter.onNext(DevicePosOrientEvent(proximiEvent = proximiEvent, eventType = "proximi"))
+                        val proximiEvent = ProximiEvent(location = ProximiLocation(lat = lat, lon = lon, accuracy = accuracy))
+                        emitter.onNext(DevicePosOrientEvent(proximiEvent = proximiEvent, eventType = DevicePosOrientEvent.POSITION_EVENT))
                     }
 
                     override fun foundDevice(device: ProximiioBLEDevice?, registered: Boolean) {
                         if (registered) {
-                            val proximiEvent = ProximiEvent(event_type = ProximiEvent.BEACON_FOUND_EVENT,
-                                    beacon = device)
-                            emitter.onNext(DevicePosOrientEvent(proximiEvent = proximiEvent, eventType = "proximi"))
+                            val proximiEvent = ProximiEvent(beacon = device)
+                            emitter.onNext(DevicePosOrientEvent(proximiEvent = proximiEvent, eventType = DevicePosOrientEvent.BEACON_FOUND_EVENT))
                         }
                     }
                 })
