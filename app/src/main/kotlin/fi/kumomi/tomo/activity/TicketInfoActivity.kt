@@ -67,7 +67,6 @@ class TicketInfoActivity : AppCompatActivity() {
 
         val sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         val app = applicationContext as TomoApplication
-        val bitmapOrg = BitmapFactory.decodeResource(resources, R.id.needle)
 
 
         val proximiOptions = ProximiioOptions()
@@ -91,11 +90,16 @@ class TicketInfoActivity : AppCompatActivity() {
                 .subscribe {
                     val currentPosition = app.proximiPosition
 
+                    Log.i(tag, "event type ---- ${it.eventType}")
+
                     if (it.eventType == DevicePosOrientEvent.POSITION_EVENT) {
                         currentPosition["lat"] = it.proximiEvent?.location?.lat
                         currentPosition["lng"] = it.proximiEvent?.location?.lon
                     }
 
+                    if (it.eventType == DevicePosOrientEvent.BEACON_FOUND_EVENT) {
+                        beaconMac.text = it.proximiEvent?.beacon?.mac
+                    }
 
                     if (it.eventType == DevicePosOrientEvent.ORIENTATION_EVENT &&
                             currentPosition["lat"] != 0F.toDouble() &&
@@ -139,7 +143,7 @@ class TicketInfoActivity : AppCompatActivity() {
 
                         Log.i(tag, direction.toString())
                         directionAngleText.text = direction.toInt().toString()
-                        rotateImageView(needle, bitmapOrg, direction)
+                        rotateImageView(needle, R.drawable.needle, direction)
                     }
                 }
 
@@ -182,10 +186,11 @@ class TicketInfoActivity : AppCompatActivity() {
         proximiApi?.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    private fun rotateImageView(imageView: ImageView, bitmapOrg: Bitmap, rotate: Double) {
+    private fun rotateImageView(imageView: ImageView, drawable: Int, rotate: Double) {
         var rotate = rotate
 
         // Get the width/height of the drawable
+        val bitmapOrg = BitmapFactory.decodeResource(resources, drawable)
         val dm = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(dm)
         val width = bitmapOrg.width

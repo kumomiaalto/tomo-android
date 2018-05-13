@@ -17,8 +17,6 @@ class DefaultActivity : AppCompatActivity() {
         setContentView(R.layout.activity_default)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-
     }
 
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {

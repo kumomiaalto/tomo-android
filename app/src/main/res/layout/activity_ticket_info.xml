@@ -235,4 +235,16 @@
         app:layout_constraintStart_toStartOf="@+id/container"
         app:layout_constraintTop_toTopOf="@+id/container" />
 
+    <TextView
+        android:id="@+id/beaconMac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="beaconMAC"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@+id/ticketInfoBoxHeader"
+        app:layout_constraintStart_toEndOf="@+id/timeView"
+        tools:layout_editor_absoluteY="58dp" />
+
 </android.support.constraint.ConstraintLayout>
