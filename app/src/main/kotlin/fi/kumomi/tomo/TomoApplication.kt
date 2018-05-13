@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit
 class TomoApplication : MultiDexApplication() {
     var geofences: List<Geofence>? = null
     var beacons: HashMap<String, Beacon> = HashMap()
-    val seenBeacons: HashMap<String, DateTime> = HashMap()
+    val seenBeacons: HashMap<String?, DateTime> = HashMap()
     var startGeofence: Geofence? = null
     var ticket: AirlineTicket? = null
     val proximiPosition: HashMap<String, Double?> = hashMapOf("lat" to 0F.toDouble(), "lng" to 0F.toDouble())

@@ -82,12 +82,9 @@ class DefaultActivity : AppCompatActivity() {
         proximiObservableSwitch
                 .switchMap { if(it) proximiObservable else Observable.never() }
                 .subscribe {
-                    if (it.eventType == DevicePosOrientEvent.BEACON_FOUND_EVENT) {
-                        Log.i(tag, "Beacon Found - ${it.proximiEvent?.beacon?.mac}")
-                    }
-
                     if (!notificationLock && it.eventType == DevicePosOrientEvent.BEACON_FOUND_EVENT &&
                             app.beacons.containsKey(it.proximiEvent?.beacon?.mac)) {
+                        Log.i(tag, "Configured beacon found ${it.proximiEvent?.beacon?.mac}")
                         var seenBeacon = false
 
                         if (app.seenBeacons.containsKey(it.proximiEvent?.beacon?.mac)) {
@@ -95,11 +92,14 @@ class DefaultActivity : AppCompatActivity() {
                             val currentTime = DateTime()
                             val interval = Interval(seenTime, currentTime)
 
-                            if (interval.toDuration().standardMinutes < 2)
+                            if (interval.toDuration().standardMinutes < 2) {
                                 seenBeacon = true
+                            }
                         }
 
                         if (!seenBeacon) {
+                            app.seenBeacons[it.proximiEvent?.beacon?.mac] = DateTime()
+
                             val beacon = app.beacons[it.proximiEvent?.beacon?.mac]
                             setNotificationData(beacon!!)
                             toggleTicketBoxElements(false)
@@ -111,7 +111,7 @@ class DefaultActivity : AppCompatActivity() {
                                 notificationLock = false
                                 toggleNotificatioBoxElements(false)
                                 toggleTicketBoxElements(true)
-                            }, 5000)
+                            }, 15000)
                         }
                     }
                 }
