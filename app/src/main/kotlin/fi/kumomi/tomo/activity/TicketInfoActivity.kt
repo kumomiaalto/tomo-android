@@ -41,6 +41,7 @@ import android.location.Location
 import android.support.v7.app.AppCompatDelegate
 import android.view.View
 import android.widget.ImageView
+import io.proximi.proximiiolibrary.ProximiioBLEDevice
 import org.jetbrains.anko.toast
 
 
