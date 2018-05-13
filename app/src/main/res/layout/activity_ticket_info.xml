@@ -71,6 +71,19 @@
         app:layout_constraintStart_toStartOf="@+id/container"
         app:layout_constraintTop_toTopOf="@+id/container" />
 
+    <ImageView
+        android:id="@+id/clockIcon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="@+id/timeView"
+        app:layout_constraintStart_toStartOf="@+id/timeView"
+        app:layout_constraintTop_toTopOf="@+id/timeView"
+        app:srcCompat="@drawable/clock" />
+
     <TextView
         android:id="@+id/time"
         android:layout_width="wrap_content"
