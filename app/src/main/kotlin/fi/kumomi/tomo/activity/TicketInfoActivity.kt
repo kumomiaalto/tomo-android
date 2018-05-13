@@ -15,7 +15,6 @@ import fi.kumomi.tomo.flowable.DeviceOrientationFlowable
 import fi.kumomi.tomo.flowable.ProximiEventsFlowable
 import fi.kumomi.tomo.model.AirlineTicket
 import fi.kumomi.tomo.model.DevicePosOrientEvent
-import fi.kumomi.tomo.model.Geofence
 import fi.kumomi.tomo.observable.AirlineTicketObservable
 import fi.kumomi.tomo.util.RadiansToDegrees
 import io.proximi.proximiiolibrary.ProximiioAPI
@@ -40,8 +39,9 @@ import android.graphics.Matrix
 import android.hardware.GeomagneticField
 import android.location.Location
 import android.support.v7.app.AppCompatDelegate
+import android.view.View
 import android.widget.ImageView
-import fi.kumomi.tomo.util.BitmapFromVectorDrawable
+import org.jetbrains.anko.toast
 
 
 class TicketInfoActivity : AppCompatActivity() {
@@ -67,6 +67,8 @@ class TicketInfoActivity : AppCompatActivity() {
 
         val sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         val app = applicationContext as TomoApplication
+        val bitmapOrg = BitmapFactory.decodeResource(resources, R.id.needle)
+
 
         val proximiOptions = ProximiioOptions()
                 .setNotificationMode(ProximiioOptions.NotificationMode.DISABLED)
@@ -131,13 +133,13 @@ class TicketInfoActivity : AppCompatActivity() {
                             bearingTo += 360
 
                         direction = bearingTo - azimuth
-//
+
                         if (direction < 0)
                             direction += 360
 
                         Log.i(tag, direction.toString())
                         directionAngleText.text = direction.toInt().toString()
-                        rotateImageView(needle, R.drawable.needle, direction)
+                        rotateImageView(needle, bitmapOrg, direction)
                     }
                 }
 
@@ -180,11 +182,8 @@ class TicketInfoActivity : AppCompatActivity() {
         proximiApi?.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    private fun rotateImageView(imageView: ImageView, drawable: Int, rotate: Double) {
+    private fun rotateImageView(imageView: ImageView, bitmapOrg: Bitmap, rotate: Double) {
         var rotate = rotate
-
-        // Decode the drawable into a bitmap
-        val bitmapOrg = BitmapFactory.decodeResource(resources, drawable)
 
         // Get the width/height of the drawable
         val dm = DisplayMetrics()
@@ -208,5 +207,11 @@ class TicketInfoActivity : AppCompatActivity() {
         //imageView.setImageBitmap( rotatedBitmap );
         imageView.setImageDrawable(BitmapDrawable(resources, rotatedBitmap))
         imageView.scaleType = ScaleType.CENTER
+    }
+
+    fun launchDefaultActivity(view: View) {
+        toast("Launch Default Activity")
+        val intent  = Intent(this, DefaultActivity::class.java)
+        startActivity(intent)
     }
 }
