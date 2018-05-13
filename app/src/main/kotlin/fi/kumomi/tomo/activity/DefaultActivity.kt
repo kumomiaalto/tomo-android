@@ -86,8 +86,7 @@ class DefaultActivity : AppCompatActivity() {
                         Log.i(tag, "Beacon Found - ${it.proximiEvent?.beacon?.mac}")
                     }
 
-
-                    if (notificationLock && it.eventType == DevicePosOrientEvent.BEACON_FOUND_EVENT &&
+                    if (!notificationLock && it.eventType == DevicePosOrientEvent.BEACON_FOUND_EVENT &&
                             app.beacons.containsKey(it.proximiEvent?.beacon?.mac)) {
                         var seenBeacon = false
 
