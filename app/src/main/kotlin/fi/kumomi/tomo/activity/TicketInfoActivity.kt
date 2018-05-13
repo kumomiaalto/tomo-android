@@ -137,7 +137,7 @@ class TicketInfoActivity : AppCompatActivity() {
 
                         Log.i(tag, direction.toString())
                         directionAngleText.text = direction.toInt().toString()
-//                        rotateImageView(needle, R.drawable.ic_needle, direction)
+                        rotateImageView(needle, R.drawable.needle, direction)
                     }
                 }
 
@@ -184,7 +184,7 @@ class TicketInfoActivity : AppCompatActivity() {
         var rotate = rotate
 
         // Decode the drawable into a bitmap
-        val bitmapOrg = BitmapFromVectorDrawable.create(applicationContext, drawable)
+        val bitmapOrg = BitmapFactory.decodeResource(resources, drawable)
 
         // Get the width/height of the drawable
         val dm = DisplayMetrics()
