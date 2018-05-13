@@ -9,15 +9,18 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 class AirlineTicketObservable {
-    fun create(): Observable<AirlineTicket> {
-        val retrofit = Retrofit.Builder()
-                .baseUrl(Config.BASE_URL)
-                .addConverterFactory(MoshiConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build()
+    companion object {
+        fun create(): Observable<AirlineTicket> {
+            val retrofit = Retrofit.Builder()
+                    .baseUrl(Config.TOMO_API_BASE_URL)
+                    .addConverterFactory(MoshiConverterFactory.create())
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .build()
 
-        val tomoApi = retrofit.create(TomoApi::class.java)
+            val tomoApi = retrofit.create(TomoApi::class.java)
 
-        return tomoApi.getAirlineTicket()
+            return tomoApi.getAirlineTicket()
+        }
     }
+
 }

@@ -31,7 +31,7 @@ class ProximiEventsFlowable {
                     }
 
                     override fun foundDevice(device: ProximiioBLEDevice?, registered: Boolean) {
-                        if (true) {
+                        if (device?.proximity == ProximiioBLEDevice.Proximity.NEAR) {
                             val proximiEvent = ProximiEvent(beacon = device)
                             emitter.onNext(DevicePosOrientEvent(proximiEvent = proximiEvent, eventType = DevicePosOrientEvent.BEACON_FOUND_EVENT))
                         }

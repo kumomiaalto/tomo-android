@@ -7,6 +7,23 @@
     android:orientation="horizontal"
     tools:context=".activity.TicketInfoActivity">
 
+    <Button
+        android:id="@+id/home"
+        style="@android:style/Widget.Material.Button"
+        android:layout_width="68dp"
+        android:layout_height="39dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:onClick="launchDefaultActivity"
+        android:text="Home"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toBottomOf="@+id/container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/container"
+        app:layout_constraintTop_toTopOf="@+id/container" />
+
     <View
         android:id="@+id/container"
         android:layout_width="450dp"
@@ -44,6 +61,29 @@
         app:layout_constraintEnd_toEndOf="@+id/container"
         app:layout_constraintTop_toTopOf="@+id/ticketInfoBox" />
 
+    <View
+        android:id="@+id/timeView"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/time_view_shape"
+        app:layout_constraintStart_toStartOf="@+id/container"
+        app:layout_constraintTop_toTopOf="@+id/container" />
+
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/timeView"
+        app:layout_constraintEnd_toEndOf="@+id/timeView"
+        app:layout_constraintTop_toTopOf="@+id/timeView" />
+
     <TextView
         android:id="@+id/name"
         android:layout_width="wrap_content"
@@ -63,22 +103,9 @@
         android:layout_marginTop="40dp"
         android:fontFamily="@font/roboto"
         android:text="Flight Info"
-        android:textSize="15sp"
+        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="@+id/ticketInfoBox"
         app:layout_constraintTop_toBottomOf="@+id/ticketInfoBoxHeader" />
-
-    <TextView
-        android:id="@+id/currentTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/roboto"
-        android:textColor="#FAFAFA"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/timeView"
-        app:layout_constraintTop_toTopOf="@+id/timeView" />
 
     <TextView
         android:id="@+id/ticketClassText"
@@ -180,16 +207,6 @@
         app:layout_constraintEnd_toStartOf="@+id/ticketInfoBox"
         app:layout_constraintStart_toStartOf="@+id/container" />
 
-    <View
-        android:id="@+id/timeView"
-        android:layout_width="80dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/time_view_shape"
-        app:layout_constraintStart_toStartOf="@+id/container"
-        app:layout_constraintTop_toTopOf="@+id/container" />
-
     <ImageView
         android:id="@+id/planeIcon"
         android:layout_width="wrap_content"
@@ -208,44 +225,12 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:scaleType="center"
         app:layout_constraintBottom_toBottomOf="@+id/circleView"
         app:layout_constraintEnd_toEndOf="@+id/circleView"
         app:layout_constraintStart_toStartOf="@+id/circleView"
         app:layout_constraintTop_toTopOf="@+id/circleView"
         app:layout_constraintVertical_bias="0.437"
         app:srcCompat="@drawable/needle" />
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="D"
-        android:onClick="launchDefaultActivity"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/directionAngleText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="80dp"
-        android:layout_marginTop="70dp"
-        app:layout_constraintStart_toStartOf="@+id/container"
-        app:layout_constraintTop_toTopOf="@+id/container" />
-
-    <TextView
-        android:id="@+id/beaconMac"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="20dp"
-        android:text="beaconMAC"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toStartOf="@+id/ticketInfoBoxHeader"
-        app:layout_constraintStart_toEndOf="@+id/timeView"
-        app:layout_constraintTop_toTopOf="@+id/container" />
 
 </android.support.constraint.ConstraintLayout>

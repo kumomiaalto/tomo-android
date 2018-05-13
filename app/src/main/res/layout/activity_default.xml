@@ -26,8 +26,25 @@
         android:layout_width="223dp"
         android:layout_height="283dp"
         android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/ticket_info_box_shape"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@id/container"
+        app:layout_constraintEnd_toEndOf="@+id/container"
+        app:layout_constraintLeft_toLeftOf="@id/container"
+        app:layout_constraintTop_toTopOf="@id/container"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <View
+        android:id="@+id/navigationView"
+        android:layout_width="223dp"
+        android:layout_height="283dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/ticket_info_box_shape"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@id/container"
         app:layout_constraintEnd_toEndOf="@+id/container"
         app:layout_constraintLeft_toLeftOf="@id/container"
@@ -42,19 +59,6 @@
         android:background="@drawable/ticket_info_box_header"
         app:layout_constraintEnd_toEndOf="@+id/container"
         app:layout_constraintTop_toTopOf="@+id/ticketInfoBox" />
-
-    <TextView
-        android:id="@+id/currentTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/roboto"
-        android:textColor="#FAFAFA"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/timeView"
-        app:layout_constraintTop_toTopOf="@+id/timeView" />
 
     <TextView
         android:id="@+id/sourceDestination"
@@ -84,7 +88,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="15dp"
         android:text="Gate"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="@+id/ticketInfoBox"
@@ -97,7 +101,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="110dp"
         android:text="Boarding Time"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="@+id/ticketInfoBox"
@@ -123,10 +127,24 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:textSize="30sp"
+        android:textSize="35sp"
         app:layout_constraintEnd_toEndOf="@+id/ticketInfoBox"
         app:layout_constraintStart_toStartOf="@+id/ticketInfoBox"
         app:layout_constraintTop_toBottomOf="@+id/boardingTimeText" />
+
+    <TextView
+        android:id="@+id/notificationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="40dp"
+        android:text="Toilet"
+        android:textSize="26sp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/navigationView"
+        app:layout_constraintStart_toStartOf="@+id/navigationView"
+        app:layout_constraintTop_toTopOf="@+id/ticketInfoBoxHeader" />
 
     <View
         android:id="@+id/circleView"
@@ -168,6 +186,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:scaleType="center"
         app:layout_constraintBottom_toBottomOf="@+id/circleView"
         app:layout_constraintEnd_toEndOf="@+id/circleView"
         app:layout_constraintStart_toStartOf="@+id/circleView"
@@ -175,15 +194,46 @@
         app:layout_constraintVertical_bias="0.437"
         app:srcCompat="@drawable/needle" />
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+    <ImageView
+        android:id="@+id/notificationIcon"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="40dp"
+        android:scaleType="center"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/navigationView"
+        app:layout_constraintStart_toStartOf="@+id/navigationView"
+        app:layout_constraintTop_toBottomOf="@+id/notificationText" />
+
+    <Button
+        android:id="@+id/ticketActivity"
+        android:layout_width="68dp"
+        android:layout_height="39dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="4dp"
         android:layout_marginTop="8dp"
-        android:text="T"
         android:onClick="launchTicketActivity"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="Ticket"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toBottomOf="@+id/container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/container"
+        app:layout_constraintTop_toTopOf="@+id/container" />
+
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/timeView"
+        app:layout_constraintEnd_toEndOf="@+id/timeView"
+        app:layout_constraintTop_toTopOf="@+id/timeView" />
 
 </android.support.constraint.ConstraintLayout>

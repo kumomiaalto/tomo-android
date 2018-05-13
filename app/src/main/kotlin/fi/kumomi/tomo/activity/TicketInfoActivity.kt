@@ -61,13 +61,13 @@ class TicketInfoActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ticket_info)
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         val sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         val app = applicationContext as TomoApplication
-
+        if (app.ticket != null)
+            updateTicketData(app.ticket!!)
 
         val proximiOptions = ProximiioOptions()
                 .setNotificationMode(ProximiioOptions.NotificationMode.DISABLED)
@@ -75,10 +75,10 @@ class TicketInfoActivity : AppCompatActivity() {
         proximiApi?.setAuth(Config.PROXIMI_API_KEY)
         proximiApi?.setActivity(this)
 
-        flightInfoObservable = AirlineTicketObservable().create()
+        flightInfoObservable = AirlineTicketObservable.create()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-//                .repeatWhen { it.delay(5, TimeUnit.SECONDS) }
+                .repeatWhen { it.delay(30, TimeUnit.SECONDS) }
                 .retryWhen { it.flatMap { Observable.timer(5, TimeUnit.SECONDS) } }
 
         val posOrientationFlowable = Flowable.merge(
@@ -86,84 +86,71 @@ class TicketInfoActivity : AppCompatActivity() {
                 ProximiEventsFlowable.create(proximiApi).subscribeOn(Schedulers.io())
         )
 
-        posOrientationFlowable.observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    val currentPosition = app.proximiPosition
-
-                    if (it.eventType == DevicePosOrientEvent.BEACON_FOUND_EVENT) {
-                        Log.i(tag, "Beacon Found ${it.proximiEvent?.beacon?.mac}")
-                    }
-//                    Log.i(tag, "event type ---- ${it.eventType}")
-
-                    if (it.eventType == DevicePosOrientEvent.POSITION_EVENT) {
-                        currentPosition["lat"] = it.proximiEvent?.location?.lat
-                        currentPosition["lng"] = it.proximiEvent?.location?.lon
-                    }
-
-                    if (it.eventType == DevicePosOrientEvent.BEACON_FOUND_EVENT) {
-                        beaconMac.text = it.proximiEvent?.beacon?.mac
-                    }
-
-                    if (it.eventType == DevicePosOrientEvent.ORIENTATION_EVENT &&
-                            currentPosition["lat"] != 0F.toDouble() &&
-                            app.startGeofence != null) {
-
-                        if (it.sensorEvent?.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER))
-                            System.arraycopy(it.sensorEvent?.values,
-                                    0, accelerometerReading, 0, accelerometerReading.size)
-
-                        if (it.sensorEvent?.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD))
-                            System.arraycopy(it.sensorEvent?.values,
-                                    0, magnetometerReading, 0, magnetometerReading.size)
-
-                        SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading)
-
-                        SensorManager.getOrientation(rotationMatrix, orientationAngles)
-                        var azimuth = RadiansToDegrees.convert(orientationAngles[0].toDouble())
-
-                        val currentLocationObj = Location("current")
-                        currentLocationObj.latitude = currentPosition["lat"]!!
-                        currentLocationObj.longitude = currentPosition["lng"]!!
-
-                        val destinationLocationObj = Location("destination")
-                        destinationLocationObj.latitude = app.startGeofence!!.latlng.lat
-                        destinationLocationObj.longitude = app.startGeofence!!.latlng.lng
-
-                        val geoField = GeomagneticField(currentLocationObj.latitude.toFloat(),
-                                currentLocationObj.longitude.toFloat(), currentLocationObj.altitude.toFloat(),
-                                System.currentTimeMillis())
-
-                        azimuth -= geoField.declination
-
-                        var bearingTo = currentLocationObj.bearingTo(destinationLocationObj)
-                        if (bearingTo < 0)
-                            bearingTo += 360
-
-                        direction = bearingTo - azimuth
-
-                        if (direction < 0)
-                            direction += 360
-
-//                        Log.i(tag, direction.toString())
-                        directionAngleText.text = direction.toInt().toString()
-                        rotateImageView(needle, R.drawable.needle, direction)
-                    }
-                }
+//        posOrientationFlowable.observeOn(AndroidSchedulers.mainThread())
+//                .subscribe {
+//                    val currentPosition = app.proximiPosition
+//
+//                    if (it.eventType == DevicePosOrientEvent.BEACON_FOUND_EVENT) {
+//                        Log.i(tag, "Beacon Found ${it.proximiEvent?.beacon?.mac}")
+//                    }
+////                    Log.i(tag, "event type ---- ${it.eventType}")
+//
+//                    if (it.eventType == DevicePosOrientEvent.POSITION_EVENT) {
+//                        currentPosition["lat"] = it.proximiEvent?.location?.lat
+//                        currentPosition["lng"] = it.proximiEvent?.location?.lon
+//                    }
+//
+//                    if (it.eventType == DevicePosOrientEvent.ORIENTATION_EVENT &&
+//                            currentPosition["lat"] != 0F.toDouble() &&
+//                            app.startGeofence != null) {
+//
+//                        if (it.sensorEvent?.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER))
+//                            System.arraycopy(it.sensorEvent?.values,
+//                                    0, accelerometerReading, 0, accelerometerReading.size)
+//
+//                        if (it.sensorEvent?.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD))
+//                            System.arraycopy(it.sensorEvent?.values,
+//                                    0, magnetometerReading, 0, magnetometerReading.size)
+//
+//                        SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading)
+//
+//                        SensorManager.getOrientation(rotationMatrix, orientationAngles)
+//                        var azimuth = RadiansToDegrees.convert(orientationAngles[0].toDouble())
+//
+//                        val currentLocationObj = Location("current")
+//                        currentLocationObj.latitude = currentPosition["lat"]!!
+//                        currentLocationObj.longitude = currentPosition["lng"]!!
+//
+//                        val destinationLocationObj = Location("destination")
+//                        destinationLocationObj.latitude = app.startGeofence!!.latlng.lat
+//                        destinationLocationObj.longitude = app.startGeofence!!.latlng.lng
+//
+//                        val geoField = GeomagneticField(currentLocationObj.latitude.toFloat(),
+//                                currentLocationObj.longitude.toFloat(), currentLocationObj.altitude.toFloat(),
+//                                System.currentTimeMillis())
+//
+//                        azimuth -= geoField.declination
+//
+//                        var bearingTo = currentLocationObj.bearingTo(destinationLocationObj)
+//                        if (bearingTo < 0)
+//                            bearingTo += 360
+//
+//                        direction = bearingTo - azimuth
+//
+//                        if (direction < 0)
+//                            direction += 360
+//
+////                        Log.i(tag, direction.toString())
+////                        directionAngleText.text = direction.toInt().toString()
+////                        rotateImageView(needle, R.drawable.needle, direction)
+//                    }
+//                }
 
         flightInfoObservableSwitch
                 .switchMap { if(it) flightInfoObservable else Observable.never() }
                 .subscribe {
-                    name.text = "${it.firstName} ${it.lastName}"
-                    flightTime.text = ISODateTimeFormat.dateTimeParser()
-                            .parseDateTime(it.departureTime)
-                            .withZone(DateTimeZone.forTimeZone(TimeZone.getDefault()))
-                            .toString("HH:mm")
-                    seat.text = it.seat
-                    ticketClass.text = it.ticketClass
-                    gate.text = it.gate
-                    flightNumber.text = it.flightNumber
-                    sourceDestination.text = "${it.source} → ${it.destination}"
-                    currentTime.text = LocalDateTime().toString("HH:mm")
+                    app.ticket = it
+                    updateTicketData(it)
                 }
     }
 
@@ -221,5 +208,19 @@ class TicketInfoActivity : AppCompatActivity() {
         toast("Launch Default Activity")
         val intent  = Intent(this, DefaultActivity::class.java)
         startActivity(intent)
+    }
+
+    fun updateTicketData(ticket: AirlineTicket) {
+        name.text = "${ticket.firstName} ${ticket.lastName}"
+        flightTime.text = ISODateTimeFormat.dateTimeParser()
+                .parseDateTime(ticket.departureTime)
+                .withZone(DateTimeZone.forTimeZone(TimeZone.getDefault()))
+                .toString("HH:mm")
+        seat.text = ticket.seat
+        ticketClass.text = ticket.ticketClass
+        gate.text = ticket.gate
+        flightNumber.text = ticket.flightNumber
+        sourceDestination.text = "${ticket.source} → ${ticket.destination}"
+        time.text = LocalDateTime().toString("HH:mm")
     }
 }

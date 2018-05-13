@@ -13,31 +13,4 @@ class NavigationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigation)
     }
-
-    override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
-        val action = event?.action
-        val keyCode = event?.keyCode
-
-        when (keyCode) {
-            KeyEvent.KEYCODE_VOLUME_UP -> {
-                if (action == KeyEvent.ACTION_DOWN) {
-                    toast("Launching Default")
-                    val intent = Intent(this, DefaultActivity::class.java)
-                    startActivity(intent)
-                }
-                return true
-            }
-            KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                if (action == KeyEvent.ACTION_DOWN) {
-                    toast("Launching Default")
-                    val intent = Intent(this, DefaultActivity::class.java)
-                    startActivity(intent)
-                }
-                return true
-            }
-            else -> {
-                return super.dispatchKeyEvent(event)
-            }
-        }
-    }
 }
