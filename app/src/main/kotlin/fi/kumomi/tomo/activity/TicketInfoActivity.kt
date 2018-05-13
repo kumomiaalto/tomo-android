@@ -41,7 +41,6 @@ import android.location.Location
 import android.support.v7.app.AppCompatDelegate
 import android.view.View
 import android.widget.ImageView
-import io.proximi.proximiiolibrary.ProximiioBLEDevice
 import org.jetbrains.anko.toast
 
 
@@ -91,7 +90,10 @@ class TicketInfoActivity : AppCompatActivity() {
                 .subscribe {
                     val currentPosition = app.proximiPosition
 
-                    Log.i(tag, "event type ---- ${it.eventType}")
+                    if (it.eventType == DevicePosOrientEvent.BEACON_FOUND_EVENT) {
+                        Log.i(tag, "Beacon Found ${it.proximiEvent?.beacon?.mac}")
+                    }
+//                    Log.i(tag, "event type ---- ${it.eventType}")
 
                     if (it.eventType == DevicePosOrientEvent.POSITION_EVENT) {
                         currentPosition["lat"] = it.proximiEvent?.location?.lat
@@ -142,7 +144,7 @@ class TicketInfoActivity : AppCompatActivity() {
                         if (direction < 0)
                             direction += 360
 
-                        Log.i(tag, direction.toString())
+//                        Log.i(tag, direction.toString())
                         directionAngleText.text = direction.toInt().toString()
                         rotateImageView(needle, R.drawable.needle, direction)
                     }
