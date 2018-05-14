@@ -37,21 +37,6 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <View
-        android:id="@+id/navigationView"
-        android:layout_width="223dp"
-        android:layout_height="283dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/ticket_info_box_shape"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="@id/container"
-        app:layout_constraintEnd_toEndOf="@+id/container"
-        app:layout_constraintLeft_toLeftOf="@id/container"
-        app:layout_constraintTop_toTopOf="@id/container"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <View
         android:id="@+id/ticketInfoBoxHeader"
         android:layout_width="223dp"
         android:layout_height="60dp"
@@ -142,9 +127,23 @@
         android:text="Toilet"
         android:textSize="26sp"
         android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="@+id/navigationView"
-        app:layout_constraintStart_toStartOf="@+id/navigationView"
+        app:layout_constraintEnd_toEndOf="@+id/ticketInfoBox"
+        app:layout_constraintStart_toStartOf="@+id/ticketInfoBox"
         app:layout_constraintTop_toTopOf="@+id/ticketInfoBoxHeader" />
+
+    <TextView
+        android:id="@+id/directionNotificationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:text="Toilet"
+        android:textSize="26sp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/directionNotification"
+        app:layout_constraintStart_toStartOf="@+id/directionNotification"
+        app:layout_constraintTop_toTopOf="@+id/directionNotification" />
 
     <View
         android:id="@+id/circleView"
@@ -154,6 +153,19 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:background="@drawable/circle"
+        app:layout_constraintBottom_toBottomOf="@+id/container"
+        app:layout_constraintEnd_toStartOf="@+id/ticketInfoBox"
+        app:layout_constraintStart_toStartOf="@+id/container" />
+
+    <View
+        android:id="@+id/directionNotification"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/ticket_info_box_shape"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/container"
         app:layout_constraintEnd_toStartOf="@+id/ticketInfoBox"
         app:layout_constraintStart_toStartOf="@+id/container" />
@@ -194,6 +206,18 @@
         app:layout_constraintVertical_bias="0.437"
         app:srcCompat="@drawable/needle" />
 
+    <TextView
+        android:id="@+id/geofenceTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/circleView"
+        app:layout_constraintEnd_toEndOf="@+id/circleView"
+        app:layout_constraintStart_toStartOf="@+id/circleView" />
+
     <ImageView
         android:id="@+id/clockIcon"
         android:layout_width="20dp"
@@ -216,9 +240,22 @@
         android:layout_marginTop="40dp"
         android:scaleType="center"
         android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="@+id/navigationView"
-        app:layout_constraintStart_toStartOf="@+id/navigationView"
+        app:layout_constraintEnd_toEndOf="@+id/ticketInfoBox"
+        app:layout_constraintStart_toStartOf="@+id/ticketInfoBox"
         app:layout_constraintTop_toBottomOf="@+id/notificationText" />
+
+    <ImageView
+        android:id="@+id/directionNotificationIcon"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:scaleType="center"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/directionNotification"
+        app:layout_constraintStart_toStartOf="@+id/directionNotification"
+        app:layout_constraintTop_toBottomOf="@+id/directionNotificationText" />
 
     <Button
         android:id="@+id/ticketActivity"

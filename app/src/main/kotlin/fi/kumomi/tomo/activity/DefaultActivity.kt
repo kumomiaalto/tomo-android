@@ -81,6 +81,10 @@ class DefaultActivity : AppCompatActivity() {
         proximiObservableSwitch
                 .switchMap { if(it) proximiObservable else Observable.never() }
                 .subscribe {
+                    if (it.eventType == DevicePosOrientEvent.BEACON_FOUND_EVENT) {
+                        Log.i(tag, "Beacon found - ${it.proximiEvent?.beacon?.mac}")
+                    }
+
                     if (!notificationLock && it.eventType == DevicePosOrientEvent.BEACON_FOUND_EVENT &&
                             app.beacons.containsKey(it.proximiEvent?.beacon?.mac)) {
                         var seenBeacon = false
@@ -99,24 +103,42 @@ class DefaultActivity : AppCompatActivity() {
                             app.seenBeacons[it.proximiEvent?.beacon?.mac] = DateTime()
 
                             val beacon = app.beacons[it.proximiEvent?.beacon?.mac]
-                            setNotificationData(beacon!!)
-                            toggleTicketBoxElements(false)
-                            toggleNotificatioBoxElements(true)
-                            notificationLock = true
-                            vibrator.vibrate(1000)
 
-                            Handler().postDelayed({
-                                notificationLock = false
-                                toggleNotificatioBoxElements(false)
-                                toggleTicketBoxElements(true)
-                            }, 15000)
+                            if (beacon!!.beaconType == "notification") {
+                                setNotificationData(beacon)
+                                toggleTicketBoxElements(false)
+                                toggleNotificatioBoxElements(true)
+                                notificationLock = true
+                                vibrator.vibrate(1000)
+
+                                Handler().postDelayed({
+                                    notificationLock = false
+                                    toggleNotificatioBoxElements(false)
+                                    toggleTicketBoxElements(true)
+                                }, 15000)
+                            } else if (beacon.beaconType == "direction") {
+                                setDirectionNotificationData(beacon)
+                                toggleNeedleViewElements(false)
+                                toggleDirectionNotificationBoxElements(true)
+                                notificationLock = true
+                                vibrator.vibrate(1000)
+
+                                Handler().postDelayed({
+                                    notificationLock = false
+                                    toggleDirectionNotificationBoxElements(false)
+                                    toggleNeedleViewElements(true)
+                                }, 15000)
+                            }
+
                         }
                     }
 
                     if (it.eventType == DevicePosOrientEvent.GEOFENCE_ENTER_EVENT) {
                         val geofenceMetadata = it.proximiEvent?.geofence?.metadata
-                        if (geofenceMetadata != null)
+                        if (geofenceMetadata != null) {
                             Log.i(tag, "Geofence Enter! Time - ${geofenceMetadata["time"]} --- Tag --- ${geofenceMetadata["tag"]}")
+                            geofenceTime.text = "${geofenceMetadata["time"]} min"
+                        }
 
                     }
                 }
@@ -155,9 +177,7 @@ class DefaultActivity : AppCompatActivity() {
     }
 
     private fun toggleTicketBoxElements(visible: Boolean) {
-        var viewVisibility = View.VISIBLE
-        if (!visible)
-            viewVisibility = View.INVISIBLE
+        val viewVisibility = getViewVisibility(visible)
 
         ticketInfoBoxHeader.visibility = viewVisibility
         sourceDestination.visibility = viewVisibility
@@ -170,9 +190,7 @@ class DefaultActivity : AppCompatActivity() {
     }
 
     private fun toggleNotificatioBoxElements(visible: Boolean) {
-        var viewVisibility = View.VISIBLE
-        if (!visible)
-            viewVisibility = View.INVISIBLE
+        val viewVisibility = getViewVisibility(visible)
 
         notificationIcon.visibility = viewVisibility
         notificationText.visibility = viewVisibility
@@ -181,5 +199,34 @@ class DefaultActivity : AppCompatActivity() {
     private fun setNotificationData(beacon: Beacon) {
         notificationText.text = beacon.text
         notificationIcon.setImageResource(resources.getIdentifier(beacon.icon, "drawable", packageName))
+    }
+
+    private fun setDirectionNotificationData(beacon: Beacon) {
+        directionNotificationText.text = beacon.text
+        directionNotificationIcon.setImageResource(resources.getIdentifier(beacon.icon, "drawable", packageName))
+    }
+
+    private fun toggleNeedleViewElements(visible: Boolean) {
+        val viewVisibility = getViewVisibility(visible)
+
+        circleView.visibility = viewVisibility
+        needle.visibility = viewVisibility
+        geofenceTime.visibility = viewVisibility
+    }
+
+    private fun toggleDirectionNotificationBoxElements(visible: Boolean) {
+        val viewVisibility = getViewVisibility(visible)
+
+        directionNotification.visibility = viewVisibility
+        directionNotificationText.visibility = viewVisibility
+        directionNotificationIcon.visibility = viewVisibility
+    }
+
+    private fun getViewVisibility(visible: Boolean): Int {
+        var viewVisibility = View.VISIBLE
+        if (!visible)
+            viewVisibility = View.INVISIBLE
+
+        return viewVisibility
     }
 }
