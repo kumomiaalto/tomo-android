@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    tools:context=".activity.DefaultActivity">
+
+    <View
+        android:id="@+id/container"
+        android:layout_width="450dp"
+        android:layout_height="299dp"
+        android:layout_marginBottom="63dp"
+        android:layout_marginTop="62dp"
+        android:background="@drawable/screen_view"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.51"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.51" />
+
+    <View
+        android:id="@+id/ticketInfoBox"
+        android:layout_width="223dp"
+        android:layout_height="283dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/ticket_info_box_shape"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@id/container"
+        app:layout_constraintEnd_toEndOf="@+id/container"
+        app:layout_constraintLeft_toLeftOf="@id/container"
+        app:layout_constraintTop_toTopOf="@id/container"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <View
+        android:id="@+id/ticketInfoBoxHeader"
+        android:layout_width="223dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/ticket_info_box_header"
+        app:layout_constraintEnd_toEndOf="@+id/container"
+        app:layout_constraintTop_toTopOf="@+id/ticketInfoBox" />
+
+    <TextView
+        android:id="@+id/sourceDestination"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="75dp"
+        android:layout_marginTop="9dp"
+        android:textColor="#FAFAFA"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/ticketInfoBoxHeader"
+        app:layout_constraintTop_toTopOf="@+id/ticketInfoBoxHeader" />
+
+    <TextView
+        android:id="@+id/flightNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="75dp"
+        android:layout_marginTop="2dp"
+        android:textColor="#FAFAFA"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/ticketInfoBoxHeader"
+        app:layout_constraintTop_toBottomOf="@+id/sourceDestination" />
+
+    <TextView
+        android:id="@+id/gateText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="15dp"
+        android:text="Gate"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="@+id/ticketInfoBox"
+        app:layout_constraintStart_toStartOf="@+id/ticketInfoBox"
+        app:layout_constraintTop_toBottomOf="@+id/ticketInfoBoxHeader" />
+
+    <TextView
+        android:id="@+id/boardingTimeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="110dp"
+        android:text="Boarding Time"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="@+id/ticketInfoBox"
+        app:layout_constraintStart_toStartOf="@+id/ticketInfoBox"
+        app:layout_constraintTop_toBottomOf="@+id/ticketInfoBoxHeader" />
+
+    <TextView
+        android:id="@+id/gate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="@+id/ticketInfoBox"
+        app:layout_constraintStart_toStartOf="@+id/ticketInfoBox"
+        app:layout_constraintTop_toBottomOf="@+id/gateText" />
+
+    <TextView
+        android:id="@+id/boardingTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:textSize="35sp"
+        app:layout_constraintEnd_toEndOf="@+id/ticketInfoBox"
+        app:layout_constraintStart_toStartOf="@+id/ticketInfoBox"
+        app:layout_constraintTop_toBottomOf="@+id/boardingTimeText" />
+
+    <TextView
+        android:id="@+id/notificationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="40dp"
+        android:text="Toilet"
+        android:textSize="26sp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/ticketInfoBox"
+        app:layout_constraintStart_toStartOf="@+id/ticketInfoBox"
+        app:layout_constraintTop_toTopOf="@+id/ticketInfoBoxHeader" />
+
+    <View
+        android:id="@+id/circleView"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/circle"
+        app:layout_constraintBottom_toBottomOf="@+id/container"
+        app:layout_constraintEnd_toStartOf="@+id/ticketInfoBox"
+        app:layout_constraintStart_toStartOf="@+id/container" />
+
+    <View
+        android:id="@+id/directionNotification"
+        android:layout_width="210dp"
+        android:layout_height="283dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/ticket_info_box_shape"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/container"
+        app:layout_constraintEnd_toStartOf="@+id/ticketInfoBox"
+        app:layout_constraintStart_toStartOf="@+id/container" />
+
+    <View
+        android:id="@+id/timeView"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/time_view_shape"
+        app:layout_constraintStart_toStartOf="@+id/container"
+        app:layout_constraintTop_toTopOf="@+id/container" />
+
+    <ImageView
+        android:id="@+id/planeIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintStart_toStartOf="@+id/ticketInfoBoxHeader"
+        app:layout_constraintTop_toTopOf="@+id/ticketInfoBoxHeader"
+        app:srcCompat="@drawable/ic_plane_icon" />
+
+    <ImageView
+        android:id="@+id/needle"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:scaleType="center"
+        app:layout_constraintBottom_toBottomOf="@+id/circleView"
+        app:layout_constraintEnd_toEndOf="@+id/circleView"
+        app:layout_constraintStart_toStartOf="@+id/circleView"
+        app:layout_constraintTop_toTopOf="@+id/circleView"
+        app:layout_constraintVertical_bias="0.437"
+        app:srcCompat="@drawable/needle" />
+
+    <TextView
+        android:id="@+id/geofenceTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/circleView"
+        app:layout_constraintEnd_toEndOf="@+id/circleView"
+        app:layout_constraintStart_toStartOf="@+id/circleView" />
+
+    <ImageView
+        android:id="@+id/clockIcon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="@+id/timeView"
+        app:layout_constraintStart_toStartOf="@+id/timeView"
+        app:layout_constraintTop_toTopOf="@+id/timeView"
+        app:srcCompat="@drawable/clock" />
+
+    <ImageView
+        android:id="@+id/notificationIcon"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="40dp"
+        android:scaleType="center"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/ticketInfoBox"
+        app:layout_constraintStart_toStartOf="@+id/ticketInfoBox"
+        app:layout_constraintTop_toBottomOf="@+id/notificationText" />
+
+    <ImageView
+        android:id="@+id/directionNotificationIcon"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="40dp"
+        android:scaleType="center"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/directionNotification"
+        app:layout_constraintStart_toStartOf="@+id/directionNotification"
+        app:layout_constraintTop_toBottomOf="@+id/directionNotificationText" />
+
+    <TextView
+        android:id="@+id/directionNotificationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="40dp"
+        android:text="Toilet"
+        android:textSize="26sp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/directionNotification"
+        app:layout_constraintStart_toStartOf="@+id/directionNotification"
+        app:layout_constraintTop_toTopOf="@+id/directionNotification" />
+
+    <Button
+        android:id="@+id/ticketActivity"
+        android:layout_width="68dp"
+        android:layout_height="39dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:onClick="launchTicketActivity"
+        android:text="Ticket"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toBottomOf="@+id/container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/container"
+        app:layout_constraintTop_toTopOf="@+id/container" />
+
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/timeView"
+        app:layout_constraintEnd_toEndOf="@+id/timeView"
+        app:layout_constraintTop_toTopOf="@+id/timeView" />
+
+</android.support.constraint.ConstraintLayout>
