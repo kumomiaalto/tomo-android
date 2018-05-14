@@ -115,7 +115,7 @@ class DefaultActivity : AppCompatActivity() {
                                     notificationLock = false
                                     toggleNotificatioBoxElements(false)
                                     toggleTicketBoxElements(true)
-                                }, 15000)
+                                }, 10000)
                             } else if (beacon.beaconType == "direction") {
                                 setDirectionNotificationData(beacon)
                                 toggleNeedleViewElements(false)
@@ -127,7 +127,7 @@ class DefaultActivity : AppCompatActivity() {
                                     notificationLock = false
                                     toggleDirectionNotificationBoxElements(false)
                                     toggleNeedleViewElements(true)
-                                }, 15000)
+                                }, 10000)
                             }
 
                         }
