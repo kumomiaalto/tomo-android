@@ -6,7 +6,6 @@ import android.content.pm.ActivityInfo
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import android.os.VibrationEffect
 import android.view.View
 import android.view.WindowManager
 import fi.kumomi.tomo.Config
@@ -84,7 +83,6 @@ class DefaultActivity : AppCompatActivity() {
                 .subscribe {
                     if (!notificationLock && it.eventType == DevicePosOrientEvent.BEACON_FOUND_EVENT &&
                             app.beacons.containsKey(it.proximiEvent?.beacon?.mac)) {
-                        Log.i(tag, "Configured beacon found ${it.proximiEvent?.beacon?.mac}")
                         var seenBeacon = false
 
                         if (app.seenBeacons.containsKey(it.proximiEvent?.beacon?.mac)) {
@@ -113,6 +111,13 @@ class DefaultActivity : AppCompatActivity() {
                                 toggleTicketBoxElements(true)
                             }, 15000)
                         }
+                    }
+
+                    if (it.eventType == DevicePosOrientEvent.GEOFENCE_ENTER_EVENT) {
+                        val geofenceMetadata = it.proximiEvent?.geofence?.metadata
+                        if (geofenceMetadata != null)
+                            Log.i(tag, "Geofence Enter! Time - ${geofenceMetadata["time"]} --- Tag --- ${geofenceMetadata["tag"]}")
+
                     }
                 }
     }

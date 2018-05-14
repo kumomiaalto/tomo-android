@@ -19,7 +19,7 @@ class GeofencesObservable {
 
             val proximiApi = retrofit.create(ProximiApi::class.java)
 
-            return proximiApi.getGeofences(Config.PROXIMI_API_KEY)
+            return proximiApi.getGeofences("Bearer ${Config.PROXIMI_API_KEY}")
         }
     }
 }

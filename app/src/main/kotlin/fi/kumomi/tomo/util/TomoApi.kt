@@ -1,4 +1,4 @@
-package fi.kumomi.tomo
+package fi.kumomi.tomo.util
 
 import fi.kumomi.tomo.model.AirlineTicket
 import fi.kumomi.tomo.model.Beacon
