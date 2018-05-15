@@ -78,9 +78,9 @@ class TicketInfoActivity : AppCompatActivity() {
                 .repeatWhen { it.delay(30, TimeUnit.SECONDS) }
                 .retryWhen { it.flatMap { Observable.timer(5, TimeUnit.SECONDS) } }
 
-//        val proximiEventsFlowable = ProximiEventsFlowable.create(proximiApi)
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(Schedulers.computation())
+        val proximiEventsFlowable = ProximiEventsFlowable.create(proximiApi)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
 
         val orientationFlowable = DeviceOrientationFlowable.create(sensorManager)
                 .subscribeOn(Schedulers.io())
@@ -91,16 +91,16 @@ class TicketInfoActivity : AppCompatActivity() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .repeatWhen { it.delay(30, TimeUnit.MILLISECONDS) }
 
-//        proximiFlowableSubject
-//                .switchMap { if(it) proximiEventsFlowable else Flowable.never() }
-//                .subscribe {
-//                    val currentPosition = app.proximiPosition
-//
-//                    if (it.eventType == DevicePosOrientEvent.POSITION_EVENT) {
-//                        currentPosition["lat"] = it.proximiEvent?.location?.lat
-//                        currentPosition["lng"] = it.proximiEvent?.location?.lon
-//                    }
-//                }
+        proximiFlowableSubject
+                .switchMap { if(it) proximiEventsFlowable else Flowable.never() }
+                .subscribe {
+                    val currentPosition = app.proximiPosition
+
+                    if (it.eventType == DevicePosOrientEvent.POSITION_EVENT) {
+                        currentPosition["lat"] = it.proximiEvent?.location?.lat
+                        currentPosition["lng"] = it.proximiEvent?.location?.lon
+                    }
+                }
 
         orientationFlowableSubject
                 .switchMap { if(it) orientationFlowable else Flowable.never() }
@@ -166,7 +166,7 @@ class TicketInfoActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         flightInfoObservableSubject.onNext(true)
-//        proximiFlowableSubject.onNext(true)
+        proximiFlowableSubject.onNext(true)
         orientationFlowableSubject.onNext(true)
         needleDirectionObservableSubject.onNext(true)
     }
@@ -174,7 +174,7 @@ class TicketInfoActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         flightInfoObservableSubject.onNext(false)
-//        proximiFlowableSubject.onNext(false)
+        proximiFlowableSubject.onNext(false)
         orientationFlowableSubject.onNext(false)
         needleDirectionObservableSubject.onNext(false)
     }

@@ -17,7 +17,7 @@ class TomoApplication : MultiDexApplication() {
     val seenBeacons: HashMap<String?, DateTime> = HashMap()
     var startGeofence: Geofence? = null
     var ticket: AirlineTicket? = null
-    val proximiPosition: HashMap<String, Double> = hashMapOf("lat" to 0F.toDouble(), "lng" to 0F.toDouble())
+    val proximiPosition: HashMap<String, Double?> = hashMapOf("lat" to 0F.toDouble(), "lng" to 0F.toDouble())
 
     val accelerometerReading = FloatArray(3)
     val magnetometerReading = FloatArray(3)
