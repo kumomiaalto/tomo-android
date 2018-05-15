@@ -43,6 +43,7 @@ import fi.kumomi.tomo.observable.NeedleDirectionObservable
 import fi.kumomi.tomo.util.RadiansToDegrees
 import io.reactivex.processors.PublishProcessor
 import org.jetbrains.anko.toast
+import kotlin.math.abs
 
 
 class TicketInfoActivity : AppCompatActivity() {
@@ -77,9 +78,9 @@ class TicketInfoActivity : AppCompatActivity() {
                 .repeatWhen { it.delay(30, TimeUnit.SECONDS) }
                 .retryWhen { it.flatMap { Observable.timer(5, TimeUnit.SECONDS) } }
 
-        val proximiEventsFlowable = ProximiEventsFlowable.create(proximiApi)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.computation())
+//        val proximiEventsFlowable = ProximiEventsFlowable.create(proximiApi)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(Schedulers.computation())
 
         val orientationFlowable = DeviceOrientationFlowable.create(sensorManager)
                 .subscribeOn(Schedulers.io())
@@ -90,21 +91,21 @@ class TicketInfoActivity : AppCompatActivity() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .repeatWhen { it.delay(30, TimeUnit.MILLISECONDS) }
 
-        proximiFlowableSubject
-                .switchMap { if(it) proximiEventsFlowable else Flowable.never() }
-                .subscribe {
-                    val currentPosition = app.proximiPosition
-
-                    if (it.eventType == DevicePosOrientEvent.POSITION_EVENT) {
-                        currentPosition["lat"] = it.proximiEvent?.location?.lat
-                        currentPosition["lng"] = it.proximiEvent?.location?.lon
-                    }
-                }
+//        proximiFlowableSubject
+//                .switchMap { if(it) proximiEventsFlowable else Flowable.never() }
+//                .subscribe {
+//                    val currentPosition = app.proximiPosition
+//
+//                    if (it.eventType == DevicePosOrientEvent.POSITION_EVENT) {
+//                        currentPosition["lat"] = it.proximiEvent?.location?.lat
+//                        currentPosition["lng"] = it.proximiEvent?.location?.lon
+//                    }
+//                }
 
         orientationFlowableSubject
                 .switchMap { if(it) orientationFlowable else Flowable.never() }
                 .subscribe {
-                    if (app.proximiPosition["lat"] != 0F.toDouble() && app.startGeofence != null) {
+                    if (app.startGeofence != null) {
                         if (it.sensorEvent?.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER))
                             System.arraycopy(it.sensorEvent?.values,
                                     0, app.accelerometerReading, 0, app.accelerometerReading.size)
@@ -155,14 +156,17 @@ class TicketInfoActivity : AppCompatActivity() {
                 .switchMap { if(it) needleDirectionObservable else Observable.never() }
                 .subscribe {
                     Log.i(tag, it.toString())
-                    rotateImageView(needle, R.drawable.needle, it)
+                    if (abs(app.prevDirection - it) > 2) {
+                        rotateImageView(needle, R.drawable.needle, it)
+                        app.prevDirection = it
+                    }
                 }
     }
 
     override fun onResume() {
         super.onResume()
         flightInfoObservableSubject.onNext(true)
-        proximiFlowableSubject.onNext(true)
+//        proximiFlowableSubject.onNext(true)
         orientationFlowableSubject.onNext(true)
         needleDirectionObservableSubject.onNext(true)
     }
@@ -170,7 +174,7 @@ class TicketInfoActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         flightInfoObservableSubject.onNext(false)
-        proximiFlowableSubject.onNext(false)
+//        proximiFlowableSubject.onNext(false)
         orientationFlowableSubject.onNext(false)
         needleDirectionObservableSubject.onNext(false)
     }
