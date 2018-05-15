@@ -2,11 +2,9 @@ package fi.kumomi.tomo.activity
 
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.WindowManager
 import fi.kumomi.tomo.Config
 import fi.kumomi.tomo.R
@@ -14,9 +12,7 @@ import fi.kumomi.tomo.TomoApplication
 import fi.kumomi.tomo.flowable.DeviceOrientationFlowable
 import fi.kumomi.tomo.flowable.ProximiEventsFlowable
 import fi.kumomi.tomo.model.AirlineTicket
-import fi.kumomi.tomo.model.DevicePosOrientEvent
 import fi.kumomi.tomo.observable.AirlineTicketObservable
-import fi.kumomi.tomo.util.RadiansToDegrees
 import io.proximi.proximiiolibrary.ProximiioAPI
 import io.proximi.proximiiolibrary.ProximiioOptions
 import io.reactivex.Flowable
@@ -37,25 +33,24 @@ import android.util.DisplayMetrics
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.hardware.GeomagneticField
+import android.hardware.Sensor
 import android.location.Location
-import android.support.v7.app.AppCompatDelegate
 import android.view.View
 import android.widget.ImageView
+import fi.kumomi.tomo.model.DevicePosOrientEvent
+import fi.kumomi.tomo.observable.NeedleDirectionObservable
+import fi.kumomi.tomo.util.RadiansToDegrees
+import io.reactivex.processors.PublishProcessor
 import org.jetbrains.anko.toast
 
 
 class TicketInfoActivity : AppCompatActivity() {
     private val tag = "TicketActivity"
-    private var flightInfoObservable: Observable<AirlineTicket>? = null
-    private var flightInfoObservableSwitch = PublishSubject.create<Boolean>()
+    private var flightInfoObservableSubject = PublishSubject.create<Boolean>()
+    private var needleDirectionObservableSubject = PublishSubject.create<Boolean>()
+    private var proximiFlowableSubject = PublishProcessor.create<Boolean>()
+    private var orientationFlowableSubject = PublishProcessor.create<Boolean>()
     private var proximiApi: ProximiioAPI? = null
-
-    private val accelerometerReading = FloatArray(3)
-    private val magnetometerReading = FloatArray(3)
-
-    private val rotationMatrix = FloatArray(9)
-    private val orientationAngles = FloatArray(3)
-    private var direction: Double = 0F.toDouble()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,95 +70,107 @@ class TicketInfoActivity : AppCompatActivity() {
         proximiApi?.setAuth(Config.PROXIMI_API_KEY)
         proximiApi?.setActivity(this)
 
-        flightInfoObservable = AirlineTicketObservable.create()
+        val flightInfoObservable = AirlineTicketObservable.create()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .repeatWhen { it.delay(30, TimeUnit.SECONDS) }
                 .retryWhen { it.flatMap { Observable.timer(5, TimeUnit.SECONDS) } }
 
-        val posOrientationFlowable = Flowable.merge(
-                DeviceOrientationFlowable.create(sensorManager).subscribeOn(Schedulers.io()),
-                ProximiEventsFlowable.create(proximiApi).subscribeOn(Schedulers.io())
-        )
+        val proximiEventsFlowable = ProximiEventsFlowable.create(proximiApi)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
 
-//        posOrientationFlowable.observeOn(AndroidSchedulers.mainThread())
-//                .subscribe {
-//                    val currentPosition = app.proximiPosition
-//
-//                    if (it.eventType == DevicePosOrientEvent.BEACON_FOUND_EVENT) {
-//                        Log.i(tag, "Beacon Found ${it.proximiEvent?.beacon?.mac}")
-//                    }
-////                    Log.i(tag, "event type ---- ${it.eventType}")
-//
-//                    if (it.eventType == DevicePosOrientEvent.POSITION_EVENT) {
-//                        currentPosition["lat"] = it.proximiEvent?.location?.lat
-//                        currentPosition["lng"] = it.proximiEvent?.location?.lon
-//                    }
-//
-//                    if (it.eventType == DevicePosOrientEvent.ORIENTATION_EVENT &&
-//                            currentPosition["lat"] != 0F.toDouble() &&
-//                            app.startGeofence != null) {
-//
-//                        if (it.sensorEvent?.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER))
-//                            System.arraycopy(it.sensorEvent?.values,
-//                                    0, accelerometerReading, 0, accelerometerReading.size)
-//
-//                        if (it.sensorEvent?.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD))
-//                            System.arraycopy(it.sensorEvent?.values,
-//                                    0, magnetometerReading, 0, magnetometerReading.size)
-//
-//                        SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading)
-//
-//                        SensorManager.getOrientation(rotationMatrix, orientationAngles)
-//                        var azimuth = RadiansToDegrees.convert(orientationAngles[0].toDouble())
-//
-//                        val currentLocationObj = Location("current")
-//                        currentLocationObj.latitude = currentPosition["lat"]!!
-//                        currentLocationObj.longitude = currentPosition["lng"]!!
-//
-//                        val destinationLocationObj = Location("destination")
-//                        destinationLocationObj.latitude = app.startGeofence!!.latlng.lat
-//                        destinationLocationObj.longitude = app.startGeofence!!.latlng.lng
-//
-//                        val geoField = GeomagneticField(currentLocationObj.latitude.toFloat(),
-//                                currentLocationObj.longitude.toFloat(), currentLocationObj.altitude.toFloat(),
-//                                System.currentTimeMillis())
-//
-//                        azimuth -= geoField.declination
-//
-//                        var bearingTo = currentLocationObj.bearingTo(destinationLocationObj)
-//                        if (bearingTo < 0)
-//                            bearingTo += 360
-//
-//                        direction = bearingTo - azimuth
-//
-//                        if (direction < 0)
-//                            direction += 360
-//
-////                        Log.i(tag, direction.toString())
-////                        directionAngleText.text = direction.toInt().toString()
-////                        rotateImageView(needle, R.drawable.needle, direction)
-//                    }
-//                }
+        val orientationFlowable = DeviceOrientationFlowable.create(sensorManager)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
 
-        flightInfoObservableSwitch
+        val needleDirectionObservable = NeedleDirectionObservable.create(applicationContext as TomoApplication)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .repeatWhen { it.delay(30, TimeUnit.MILLISECONDS) }
+
+        proximiFlowableSubject
+                .switchMap { if(it) proximiEventsFlowable else Flowable.never() }
+                .subscribe {
+                    val currentPosition = app.proximiPosition
+
+                    if (it.eventType == DevicePosOrientEvent.POSITION_EVENT) {
+                        currentPosition["lat"] = it.proximiEvent?.location?.lat
+                        currentPosition["lng"] = it.proximiEvent?.location?.lon
+                    }
+                }
+
+        orientationFlowableSubject
+                .switchMap { if(it) orientationFlowable else Flowable.never() }
+                .subscribe {
+                    if (app.proximiPosition["lat"] != 0F.toDouble() && app.startGeofence != null) {
+                        if (it.sensorEvent?.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER))
+                            System.arraycopy(it.sensorEvent?.values,
+                                    0, app.accelerometerReading, 0, app.accelerometerReading.size)
+
+                        if (it.sensorEvent?.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD))
+                            System.arraycopy(it.sensorEvent?.values,
+                                    0, app.magnetometerReading, 0, app.magnetometerReading.size)
+
+                        SensorManager.getRotationMatrix(app.rotationMatrix, null, app.accelerometerReading, app.magnetometerReading)
+
+                        SensorManager.getOrientation(app.rotationMatrix, app.orientationAngles)
+                        var azimuth = RadiansToDegrees.convert(app.orientationAngles[0].toDouble())
+
+                        val currentLocationObj = Location("current")
+                        currentLocationObj.latitude = app.proximiPosition["lat"]!!
+                        currentLocationObj.longitude = app.proximiPosition["lng"]!!
+
+                        val destinationLocationObj = Location("destination")
+                        destinationLocationObj.latitude = app.startGeofence!!.latlng.lat
+                        destinationLocationObj.longitude = app.startGeofence!!.latlng.lng
+
+                        val geoField = GeomagneticField(currentLocationObj.latitude.toFloat(),
+                                currentLocationObj.longitude.toFloat(), currentLocationObj.altitude.toFloat(),
+                                System.currentTimeMillis())
+
+                        azimuth -= geoField.declination
+
+                        var bearingTo = currentLocationObj.bearingTo(destinationLocationObj)
+                        if (bearingTo < 0)
+                            bearingTo += 360
+
+                        app.direction = bearingTo - azimuth
+
+                        if (app.direction < 0)
+                            app.direction += 360
+                    }
+
+                }
+
+        flightInfoObservableSubject
                 .switchMap { if(it) flightInfoObservable else Observable.never() }
                 .subscribe {
                     app.ticket = it
                     updateTicketData(it)
                 }
+
+        needleDirectionObservableSubject
+                .switchMap { if(it) needleDirectionObservable else Observable.never() }
+                .subscribe {
+                    rotateImageView(needle, R.drawable.needle, it)
+                }
     }
 
     override fun onResume() {
         super.onResume()
-        flightInfoObservableSwitch.onNext(true)
-        // TODO Need to add switches for posorientflowable
+        flightInfoObservableSubject.onNext(true)
+        proximiFlowableSubject.onNext(true)
+        orientationFlowableSubject.onNext(true)
+        needleDirectionObservableSubject.onNext(true)
     }
 
     override fun onPause() {
         super.onPause()
-        flightInfoObservableSwitch.onNext(false)
-        // TODO Need to add switches for posorientflowable
+        flightInfoObservableSubject.onNext(false)
+        proximiFlowableSubject.onNext(false)
+        orientationFlowableSubject.onNext(false)
+        needleDirectionObservableSubject.onNext(false)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
@@ -210,7 +217,7 @@ class TicketInfoActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    fun updateTicketData(ticket: AirlineTicket) {
+    private fun updateTicketData(ticket: AirlineTicket) {
         name.text = "${ticket.firstName} ${ticket.lastName}"
         flightTime.text = ISODateTimeFormat.dateTimeParser()
                 .parseDateTime(ticket.departureTime)
