@@ -10,6 +10,7 @@ class NeedleDirectionObservable {
         fun create(context: TomoApplication): Observable<Double> {
             return Observable.create({ emitter ->
                 emitter.onNext(context.direction)
+                emitter.onComplete()
             })
         }
     }

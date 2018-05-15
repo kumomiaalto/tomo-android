@@ -35,6 +35,7 @@ import android.graphics.Matrix
 import android.hardware.GeomagneticField
 import android.hardware.Sensor
 import android.location.Location
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import fi.kumomi.tomo.model.DevicePosOrientEvent
@@ -153,6 +154,7 @@ class TicketInfoActivity : AppCompatActivity() {
         needleDirectionObservableSubject
                 .switchMap { if(it) needleDirectionObservable else Observable.never() }
                 .subscribe {
+                    Log.i(tag, it.toString())
                     rotateImageView(needle, R.drawable.needle, it)
                 }
     }
