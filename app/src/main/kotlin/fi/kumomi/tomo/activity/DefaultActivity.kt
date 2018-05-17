@@ -171,6 +171,7 @@ class DefaultActivity : AppCompatActivity() {
                 .withZone(DateTimeZone.forTimeZone(TimeZone.getDefault()))
                 .toString("HH:mm")
         gate.text = ticket.gate
+        navigationGate.text = "Gate " + ticket.gate
         flightNumber.text = ticket.flightNumber
         sourceDestination.text = "${ticket.source} → ${ticket.destination}"
         time.text = LocalDateTime().toString("HH:mm")
