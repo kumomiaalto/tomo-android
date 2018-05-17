@@ -219,6 +219,7 @@ class TicketInfoActivity : AppCompatActivity() {
         seat.text = ticket.seat
         ticketClass.text = ticket.ticketClass
         gate.text = ticket.gate
+        navigationGate.text = "Gate " + ticket.gate
         flightNumber.text = ticket.flightNumber
         sourceDestination.text = "${ticket.source} → ${ticket.destination}"
         time.text = LocalDateTime().toString("HH:mm")
