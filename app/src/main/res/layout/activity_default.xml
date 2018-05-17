@@ -184,7 +184,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="58dp"
         android:layout_marginTop="16dp"
-        android:text="Gate A32"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="@+id/circleView"
         app:layout_constraintTop_toTopOf="@+id/circleView" />
@@ -192,7 +191,7 @@
     <ImageView
         android:id="@+id/needle"
         android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_height="125dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
@@ -212,7 +211,7 @@
         android:layout_marginBottom="30dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:text="2 min"
+        android:text=""
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/circleView"
         app:layout_constraintEnd_toEndOf="@+id/circleView"
@@ -240,7 +239,6 @@
         android:layout_marginTop="40dp"
         android:scaleType="center"
         android:visibility="invisible"
-        android:background="@drawable/notification"
         app:layout_constraintEnd_toEndOf="@+id/ticketInfoBox"
         app:layout_constraintStart_toStartOf="@+id/ticketInfoBox"
         app:layout_constraintTop_toBottomOf="@+id/notificationText" />
