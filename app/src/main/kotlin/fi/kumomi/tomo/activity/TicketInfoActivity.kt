@@ -155,11 +155,17 @@ class TicketInfoActivity : AppCompatActivity() {
         needleDirectionObservableSubject
                 .switchMap { if(it) needleDirectionObservable else Observable.never() }
                 .subscribe {
-                    Log.i(tag, it.toString())
-                    rotationAngleText.text = it.toString()
-                    if (abs(app.prevDirection - it) > 2) {
-                        rotateImageView(needle, R.drawable.needle, it)
-                        app.prevDirection = it
+                    var correctedDirection = it - 90
+                    if (correctedDirection < 0) {
+                        correctedDirection = 360 - correctedDirection
+                    }
+
+                    Log.i(tag, correctedDirection.toString())
+                    rotationAngleText.text = correctedDirection.toString()
+
+                    if (abs(app.prevDirection - correctedDirection) > 3) {
+                        rotateImageView(needle, R.drawable.needle, correctedDirection)
+                        app.prevDirection = correctedDirection
                     }
                 }
     }
