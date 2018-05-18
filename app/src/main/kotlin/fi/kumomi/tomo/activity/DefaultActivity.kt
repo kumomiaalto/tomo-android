@@ -37,6 +37,7 @@ import org.joda.time.Interval
 
 class DefaultActivity : AppCompatActivity() {
     private var flightInfoObservableSwitch = PublishSubject.create<Boolean>()
+    // All proximi events come to proximiObservableSwitch
     private var proximiObservableSwitch = PublishSubject.create<Boolean>()
     private var proximiApi: ProximiioAPI? = null
     private var notificationLock = false
@@ -77,6 +78,7 @@ class DefaultActivity : AppCompatActivity() {
                     updateTicketData(it)
                 }
 
+        // Process proximi events - geofence, position, seeing beacons
         proximiObservableSwitch
                 .switchMap { if(it) proximiObservable else Observable.never() }
                 .subscribe {
@@ -95,7 +97,10 @@ class DefaultActivity : AppCompatActivity() {
 
                             Log.i(TAG, "This Beacon was last seen at ${seenTime.toString()}")
                             Log.i(TAG, "Time since we saw this beacon ${interval.toDuration().standardMinutes}")
-                            if (interval.toDuration().standardMinutes < 2) {
+
+                            // compares minutes since when beacon was seen.
+                            // to compare seconds use standardSeconds
+                            if (interval.toDuration().standardSeconds < 120) {
                                 seenBeacon = true
                             }
                         }
@@ -113,6 +118,7 @@ class DefaultActivity : AppCompatActivity() {
                                 notificationLock = true
                                 vibrator.vibrate(1000)
 
+                                // Timer for showing notification for 10 seconds and then later hide it
                                 Handler().postDelayed({
                                     notificationLock = false
                                     toggleNotificatioBoxElements(false)
@@ -125,6 +131,7 @@ class DefaultActivity : AppCompatActivity() {
                                 notificationLock = true
                                 vibrator.vibrate(1000)
 
+                                // Timer for showing direction notification
                                 Handler().postDelayed({
                                     notificationLock = false
                                     toggleDirectionNotificationBoxElements(false)

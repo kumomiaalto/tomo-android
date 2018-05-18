@@ -13,6 +13,7 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics
 import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
 
+// All global app level data is stored here
 class TomoApplication : MultiDexApplication() {
     var geofences: List<Geofence>? = null
     val beacons: HashMap<String, Beacon> = HashMap()
@@ -26,6 +27,7 @@ class TomoApplication : MultiDexApplication() {
 
     val rotationMatrix = FloatArray(9)
     val orientationAngles = FloatArray(3)
+    // Defines number of values to consider for moving average of needle rotation angles
     val rotateAngleMovingWindow = DescriptiveStatistics(30)
     var rotateAngle: Double = 0F.toDouble()
     var prevRotateAngle: Double = 0F.toDouble()
@@ -52,6 +54,7 @@ class TomoApplication : MultiDexApplication() {
                     Log.i(TAG, "Lng - ${startGeofence?.latlng?.lng}")
                 }
 
+        // Load beacons from web api
         BeaconsObservable.create()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.newThread())

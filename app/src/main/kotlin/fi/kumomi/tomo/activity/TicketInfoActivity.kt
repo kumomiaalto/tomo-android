@@ -62,9 +62,12 @@ class TicketInfoActivity : AppCompatActivity() {
 
         val sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         val app = applicationContext as TomoApplication
+
+        // Load ticket data from a global variable in app
         if (app.ticket != null)
             updateTicketData(app.ticket!!)
 
+        // Initial Proximi API
         val proximiOptions = ProximiioOptions()
                 .setNotificationMode(ProximiioOptions.NotificationMode.DISABLED)
         proximiApi = ProximiioAPI(TAG, this, proximiOptions)
@@ -101,6 +104,7 @@ class TicketInfoActivity : AppCompatActivity() {
                     }
                 }
 
+        // Needle direction stream processing code
         orientationFlowableSubject
                 .switchMap { if(it) orientationFlowable else Flowable.never() }
                 .subscribe {
@@ -115,6 +119,8 @@ class TicketInfoActivity : AppCompatActivity() {
 
                         SensorManager.getRotationMatrix(app.rotationMatrix, null, app.accelerometerReading, app.magnetometerReading)
 
+                        // In orientation angles calculated difference between magnetic north and device current orientation
+                        // is first element
                         SensorManager.getOrientation(app.rotationMatrix, app.orientationAngles)
                         var azimuth = RadiansToDegrees.convert(app.orientationAngles[0].toDouble())
 
@@ -123,15 +129,20 @@ class TicketInfoActivity : AppCompatActivity() {
                         currentLocationObj.longitude = app.proximiPosition["lng"]!!
 
                         val destinationLocationObj = Location("destination")
-                        destinationLocationObj.latitude = app.startGeofence!!.latlng.lat
-                        destinationLocationObj.longitude = app.startGeofence!!.latlng.lng
+                        destinationLocationObj.latitude = 90.0
+                        destinationLocationObj.longitude = 0.0
 
                         val geoField = GeomagneticField(currentLocationObj.latitude.toFloat(),
                                 currentLocationObj.longitude.toFloat(), currentLocationObj.altitude.toFloat(),
                                 System.currentTimeMillis())
 
+                        // Adjusts azimuth to have true north pole reference
                         azimuth -= geoField.declination
 
+                        Log.i(TAG, "Azimuth - $azimuth")
+
+                        // this is angle for a straight between current pos to destination pos w.r.t north pole line from
+                        // current position
                         var bearingTo = currentLocationObj.bearingTo(destinationLocationObj)
                         if (bearingTo < 0)
                             bearingTo += 360
@@ -143,7 +154,6 @@ class TicketInfoActivity : AppCompatActivity() {
                         app.rotateAngleMovingWindow.addValue(rotateAngle)
                         app.rotateAngle = app.rotateAngleMovingWindow.mean
                     }
-
                 }
 
         flightInfoObservableSubject
