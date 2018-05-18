@@ -1,6 +1,7 @@
 package fi.kumomi.tomo
 
 import android.support.multidex.MultiDexApplication
+import android.util.Log
 import fi.kumomi.tomo.model.AirlineTicket
 import fi.kumomi.tomo.model.Beacon
 import fi.kumomi.tomo.model.Geofence
@@ -8,6 +9,7 @@ import fi.kumomi.tomo.observable.BeaconsObservable
 import fi.kumomi.tomo.observable.GeofencesObservable
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics
 import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
 
@@ -24,8 +26,9 @@ class TomoApplication : MultiDexApplication() {
 
     val rotationMatrix = FloatArray(9)
     val orientationAngles = FloatArray(3)
-    var direction: Double = 0F.toDouble()
-    var prevDirection: Double = 0F.toDouble()
+    val rotateAngleMovingWindow = DescriptiveStatistics(30)
+    var rotateAngle: Double = 0F.toDouble()
+    var prevRotateAngle: Double = 0F.toDouble()
 
     override fun onCreate() {
         super.onCreate()
@@ -42,6 +45,11 @@ class TomoApplication : MultiDexApplication() {
                             startGeofence = geofence
                         }
                     }
+
+                    Log.i(TAG, "Pointing to geofence")
+                    Log.i(TAG, "${startGeofence?.name}")
+                    Log.i(TAG, "Lat - ${startGeofence?.latlng?.lat}")
+                    Log.i(TAG, "Lng - ${startGeofence?.latlng?.lng}")
                 }
 
         BeaconsObservable.create()
@@ -53,5 +61,9 @@ class TomoApplication : MultiDexApplication() {
                         beacons[beacon.mac] = beacon
                     }
                 }
+    }
+
+    companion object {
+        private const val TAG = "TomoApplication"
     }
 }

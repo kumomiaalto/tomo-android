@@ -47,7 +47,6 @@ import kotlin.math.abs
 
 
 class TicketInfoActivity : AppCompatActivity() {
-    private val tag = "TicketActivity"
     private var flightInfoObservableSubject = PublishSubject.create<Boolean>()
     private var needleDirectionObservableSubject = PublishSubject.create<Boolean>()
     private var proximiFlowableSubject = PublishProcessor.create<Boolean>()
@@ -68,7 +67,7 @@ class TicketInfoActivity : AppCompatActivity() {
 
         val proximiOptions = ProximiioOptions()
                 .setNotificationMode(ProximiioOptions.NotificationMode.DISABLED)
-        proximiApi = ProximiioAPI(tag, this, proximiOptions)
+        proximiApi = ProximiioAPI(TAG, this, proximiOptions)
         proximiApi?.setAuth(Config.PROXIMI_API_KEY)
         proximiApi?.setActivity(this)
 
@@ -137,10 +136,12 @@ class TicketInfoActivity : AppCompatActivity() {
                         if (bearingTo < 0)
                             bearingTo += 360
 
-                        app.direction = bearingTo - azimuth
+                        var rotateAngle = bearingTo - azimuth
+                        if (rotateAngle < 0)
+                            rotateAngle += 360
 
-                        if (app.direction < 0)
-                            app.direction += 360
+                        app.rotateAngleMovingWindow.addValue(rotateAngle)
+                        app.rotateAngle = app.rotateAngleMovingWindow.mean
                     }
 
                 }
@@ -160,12 +161,12 @@ class TicketInfoActivity : AppCompatActivity() {
                         correctedDirection = 360 - correctedDirection
                     }
 
-                    Log.i(tag, correctedDirection.toString())
+                    Log.i(TAG, correctedDirection.toString())
                     rotationAngleText.text = correctedDirection.toString()
 
-                    if (abs(app.prevDirection - correctedDirection) > 3) {
+                    if (abs(app.prevRotateAngle - correctedDirection) > 3) {
                         rotateImageView(needle, R.drawable.needle, correctedDirection)
-                        app.prevDirection = correctedDirection
+                        app.prevRotateAngle = correctedDirection
                     }
                 }
     }
@@ -242,5 +243,9 @@ class TicketInfoActivity : AppCompatActivity() {
         flightNumber.text = ticket.flightNumber
         sourceDestination.text = "${ticket.source} → ${ticket.destination}"
         time.text = LocalDateTime().toString("HH:mm")
+    }
+
+    companion object {
+        private const val TAG = "TicketInfoActivity"
     }
 }

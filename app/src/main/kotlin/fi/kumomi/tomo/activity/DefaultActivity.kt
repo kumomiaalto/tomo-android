@@ -36,7 +36,6 @@ import org.joda.time.Interval
 
 
 class DefaultActivity : AppCompatActivity() {
-    private val tag = "DefaultActivity"
     private var flightInfoObservableSwitch = PublishSubject.create<Boolean>()
     private var proximiObservableSwitch = PublishSubject.create<Boolean>()
     private var proximiApi: ProximiioAPI? = null
@@ -54,7 +53,7 @@ class DefaultActivity : AppCompatActivity() {
 
         val proximiOptions = ProximiioOptions()
                 .setNotificationMode(ProximiioOptions.NotificationMode.DISABLED)
-        proximiApi = ProximiioAPI(tag, this, proximiOptions)
+        proximiApi = ProximiioAPI(TAG, this, proximiOptions)
         proximiApi?.setAuth(Config.PROXIMI_API_KEY)
         proximiApi?.setActivity(this)
 
@@ -82,7 +81,7 @@ class DefaultActivity : AppCompatActivity() {
                 .switchMap { if(it) proximiObservable else Observable.never() }
                 .subscribe {
                     if (it.eventType == DevicePosOrientEvent.BEACON_FOUND_EVENT) {
-                        Log.i(tag, "Beacon found - ${it.proximiEvent?.beacon?.mac}")
+                        Log.i(TAG, "Beacon found - ${it.proximiEvent?.beacon?.mac}")
                     }
 
                     if (!notificationLock && it.eventType == DevicePosOrientEvent.BEACON_FOUND_EVENT &&
@@ -94,12 +93,15 @@ class DefaultActivity : AppCompatActivity() {
                             val currentTime = DateTime()
                             val interval = Interval(seenTime, currentTime)
 
+                            Log.i(TAG, "This Beacon was last seen at ${seenTime.toString()}")
+                            Log.i(TAG, "Time since we saw this beacon ${interval.toDuration().standardMinutes}")
                             if (interval.toDuration().standardMinutes < 2) {
                                 seenBeacon = true
                             }
                         }
 
                         if (!seenBeacon) {
+                            Log.i(TAG, "We have never seen this beacon until now - Storing ref")
                             app.seenBeacons[it.proximiEvent?.beacon?.mac] = DateTime()
 
                             val beacon = app.beacons[it.proximiEvent?.beacon?.mac]
@@ -136,7 +138,7 @@ class DefaultActivity : AppCompatActivity() {
                     if (it.eventType == DevicePosOrientEvent.GEOFENCE_ENTER_EVENT) {
                         val geofenceMetadata = it.proximiEvent?.geofence?.metadata
                         if (geofenceMetadata != null) {
-                            Log.i(tag, "Geofence Enter! Time - ${geofenceMetadata["time"]} --- Tag --- ${geofenceMetadata["tag"]}")
+                            Log.i(TAG, "Geofence Enter! Time - ${geofenceMetadata["time"]} --- Tag --- ${geofenceMetadata["tag"]}")
                             geofenceTime.text = "${geofenceMetadata["time"]} min"
                         }
 
@@ -228,5 +230,9 @@ class DefaultActivity : AppCompatActivity() {
             viewVisibility = View.INVISIBLE
 
         return viewVisibility
+    }
+
+    companion object {
+        private const val TAG = "DefaultActivity"
     }
 }
