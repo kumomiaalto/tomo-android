@@ -11,12 +11,14 @@ import io.reactivex.schedulers.Schedulers
 import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
 
+//app boots here
+//storing of data
 class TomoApplication : MultiDexApplication() {
     var geofences: List<Geofence>? = null
     var beacons: HashMap<String, Beacon> = HashMap()
     val seenBeacons: HashMap<String?, DateTime> = HashMap()
     var startGeofence: Geofence? = null
-    var ticket: AirlineTicket? = null
+    var ticket: AirlineTicket? = null //filled when we make a request to retrieve ticket info
     val proximiPosition: HashMap<String, Double?> = hashMapOf("lat" to 0F.toDouble(), "lng" to 0F.toDouble())
 
     override fun onCreate() {

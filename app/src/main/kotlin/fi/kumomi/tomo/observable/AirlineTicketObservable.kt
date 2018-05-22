@@ -8,6 +8,7 @@ import io.reactivex.Observable
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
+//Make a new API request
 class AirlineTicketObservable {
     companion object {
         fun create(): Observable<AirlineTicket> {
@@ -24,3 +25,6 @@ class AirlineTicketObservable {
     }
 
 }
+
+
+//observable: stream of data

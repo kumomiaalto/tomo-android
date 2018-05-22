@@ -61,6 +61,7 @@ class DefaultActivity : AppCompatActivity() {
 
         val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
+        //makes call to API every 30s
         val flightInfoObservable = AirlineTicketObservable.create()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

@@ -24,12 +24,12 @@ class ProximiEventsFlowable {
                         val proximiEvent = ProximiEvent(geofence = geofence, dwellTime = dwellTime)
                         emitter.onNext(DevicePosOrientEvent(proximiEvent = proximiEvent, eventType = DevicePosOrientEvent.GEOFENCE_EXIT_EVENT))
                     }
-
+                    //gets users position
                     override fun position(lat: Double, lon: Double, accuracy: Double) {
                         val proximiEvent = ProximiEvent(location = ProximiLocation(lat = lat, lon = lon, accuracy = accuracy))
                         emitter.onNext(DevicePosOrientEvent(proximiEvent = proximiEvent, eventType = DevicePosOrientEvent.POSITION_EVENT))
                     }
-
+                    //when beacons is found
                     override fun foundDevice(device: ProximiioBLEDevice?, registered: Boolean) {
                         if (device?.proximity == ProximiioBLEDevice.Proximity.NEAR) {
                             val proximiEvent = ProximiEvent(beacon = device)
