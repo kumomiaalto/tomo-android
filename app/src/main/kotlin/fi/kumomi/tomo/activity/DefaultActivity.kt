@@ -21,7 +21,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
-import kotlinx.android.synthetic.main.activity_default.*
+import kotlinx.android.synthetic.main.activity_default_screen.*
 import org.jetbrains.anko.toast
 import org.joda.time.DateTimeZone
 import org.joda.time.LocalDateTime
@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit
 import android.os.Vibrator
 import android.util.Log
 import fi.kumomi.tomo.model.Beacon
+import kotlinx.android.synthetic.main.activity_default_screen.*
 import org.joda.time.DateTime
 import org.joda.time.Interval
 
@@ -44,7 +45,7 @@ class DefaultActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_default)
+        setContentView(R.layout.activity_default_screen)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
@@ -137,7 +138,7 @@ class DefaultActivity : AppCompatActivity() {
                         val geofenceMetadata = it.proximiEvent?.geofence?.metadata
                         if (geofenceMetadata != null) {
                             Log.i(tag, "Geofence Enter! Time - ${geofenceMetadata["time"]} --- Tag --- ${geofenceMetadata["tag"]}")
-                            geofenceTime.text = "${geofenceMetadata["time"]} min"
+                            timeToGate.text = "${geofenceMetadata["time"]} min to gate"
                         }
 
                     }
@@ -170,41 +171,49 @@ class DefaultActivity : AppCompatActivity() {
                 .parseDateTime(ticket.boardingTime)
                 .withZone(DateTimeZone.forTimeZone(TimeZone.getDefault()))
                 .toString("HH:mm")
+        flightTime.text = ISODateTimeFormat.dateTimeParser()
+                .parseDateTime(ticket.departureTime)
+                .withZone(DateTimeZone.forTimeZone(TimeZone.getDefault()))
+                .toString("HH:mm")
+        //TODO: calc boardingTime - current time
+        //val timeToBoarding =
+        timeUntilBoarding.text = "25min" //timeUntilBoarding
         gate.text = ticket.gate
-        navigationGate.text = "Gate " + ticket.gate
         flightNumber.text = ticket.flightNumber
-        sourceDestination.text = "${ticket.source} → ${ticket.destination}"
+        //sourceDestination.text = "${ticket.source} → ${ticket.destination}"
         time.text = LocalDateTime().toString("HH:mm")
     }
 
     private fun toggleTicketBoxElements(visible: Boolean) {
         val viewVisibility = getViewVisibility(visible)
 
-        ticketInfoBoxHeader.visibility = viewVisibility
-        sourceDestination.visibility = viewVisibility
+        //ticketInfoBoxHeader.visibility = viewVisibility
+        //sourceDestination.visibility = viewVisibility
         flightNumber.visibility = viewVisibility
         gateText.visibility = viewVisibility
         boardingTimeText.visibility = viewVisibility
         gate.visibility = viewVisibility
         boardingTime.visibility = viewVisibility
+        flightTime.visibility = viewVisibility
+        timeUntilBoarding.visibility = viewVisibility
         planeIcon.visibility = viewVisibility
     }
 
     private fun toggleNotificatioBoxElements(visible: Boolean) {
         val viewVisibility = getViewVisibility(visible)
 
-        notificationIcon.visibility = viewVisibility
-        notificationText.visibility = viewVisibility
+        //notificationIcon.visibility = viewVisibility
+        //notificationText.visibility = viewVisibility
     }
 
     private fun setNotificationData(beacon: Beacon) {
-        notificationText.text = beacon.text
-        notificationIcon.setImageResource(resources.getIdentifier(beacon.icon, "drawable", packageName))
+        //notificationText.text = beacon.text
+        //notificationIcon.setImageResource(resources.getIdentifier(beacon.icon, "drawable", packageName))
     }
 
     private fun setDirectionNotificationData(beacon: Beacon) {
-        directionNotificationText.text = beacon.text
-        directionNotificationIcon.setImageResource(resources.getIdentifier(beacon.icon, "drawable", packageName))
+        //directionNotificationText.text = beacon.text
+        //directionNotificationIcon.setImageResource(resources.getIdentifier(beacon.icon, "drawable", packageName))
     }
 
     private fun toggleNeedleViewElements(visible: Boolean) {
@@ -212,15 +221,15 @@ class DefaultActivity : AppCompatActivity() {
 
         circleView.visibility = viewVisibility
         needle.visibility = viewVisibility
-        geofenceTime.visibility = viewVisibility
+        timeToGate.visibility = viewVisibility
     }
 
     private fun toggleDirectionNotificationBoxElements(visible: Boolean) {
         val viewVisibility = getViewVisibility(visible)
 
-        directionNotification.visibility = viewVisibility
-        directionNotificationText.visibility = viewVisibility
-        directionNotificationIcon.visibility = viewVisibility
+        //directionNotification.visibility = viewVisibility
+        //directionNotificationText.visibility = viewVisibility
+        //directionNotificationIcon.visibility = viewVisibility
     }
 
     private fun getViewVisibility(visible: Boolean): Int {
