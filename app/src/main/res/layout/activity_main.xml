@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="100dp"
+    tools:context="fi.kumomi.tomo.MainActivity">
+
+    <TextView
+        android:id="@+id/navigationTextHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="34dp"
+        android:layout_marginStart="34dp"
+        android:text="Navigation Data"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/navigationText"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/navigationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Waiting for geofence..."
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/navigationTextHint" />
+
+    <TextView
+        android:id="@+id/geofenceBearingHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="59dp"
+        android:text="Geofence Bearings"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toStartOf="@+id/geofenceBearing1"
+        app:layout_constraintStart_toStartOf="@+id/geofenceBearing1"
+        app:layout_constraintTop_toBottomOf="@+id/navigationText" />
+
+    <TextView
+        android:id="@+id/geofenceBearing1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text=""
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@+id/geofenceBearing2"
+        app:layout_constraintStart_toStartOf="@+id/geofenceBearing2"
+        app:layout_constraintTop_toBottomOf="@+id/geofenceBearingHint" />
+
+    <TextView
+        android:id="@+id/geofenceBearing2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="9dp"
+        android:text=""
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/geofenceBearing1" />
+</android.support.constraint.ConstraintLayout>

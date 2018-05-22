@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Tomo Android</string>
+    <string name="title_activity_flight_info">FlightInfo</string>
+</resources>

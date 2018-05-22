@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="io.proximi.proximiiolibrary:proximiiolibrary-2.7.2">
+    <CLASSES>
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/proximiiolibrary-2.7.2.aar/1f8a560782d34787a642ed194b49cd1a/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/proximiiolibrary-2.7.2.aar/1f8a560782d34787a642ed194b49cd1a/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.proximi.proximiiolibrary/proximiiolibrary/2.7.2/1fcda4448ddf13227b13e4f63295b6a1bb2cae7f/proximiiolibrary-2.7.2-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES />
+  </library>
+</component>
