@@ -1,4 +1,34 @@
-/pr-support/.gradle/*
-/sp-support/.gradle/*
-/sp-support/.idea/*
-/pr-support7.idea/*
+*.iml
+.gradle
+/local.properties
+.DS_Store
+/build
+/captures
+
+# IntelliJ
+*.iml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/misc.xml
+.idea/dictionaries
+.idea/libraries
+.idea/caches
+.idea/misc.xml
+.idea/inspectionProfiles
+
+# Built application files
+*.apk
+*.ap_
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
