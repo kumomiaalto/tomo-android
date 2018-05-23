@@ -199,18 +199,27 @@ class TicketInfoActivity : AppCompatActivity() {
                     Log.i(TAG, correctedDirection.toString())
                     rotationAngleText.text = correctedDirection.toString()
 
-                    if (abs(app.prevRotateAngle - correctedDirection) > 0) {
-                        val an = RotateAnimation(-app.prevRotateAngle.toFloat(), -correctedDirection.toFloat(),
+                    // Handling animation to not jump at 360 to 0 angle boundary
+                    val an: RotateAnimation = if (app.prevRotateAngle > 330 && correctedDirection < 30) {
+                        RotateAnimation((app.prevRotateAngle - 360).toFloat(), correctedDirection.toFloat(),
                                 Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
                                 0.5f)
-
-                        an.duration = 500
-                        an.repeatCount = 0
-                        an.fillAfter = true
-
-                        needle.startAnimation(an)
-                        app.prevRotateAngle = correctedDirection
+                    } else if (app.prevRotateAngle < 30 && correctedDirection > 330){
+                        RotateAnimation(app.prevRotateAngle.toFloat(), (correctedDirection - 360).toFloat(),
+                                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
+                                0.5f)
+                    } else {
+                        RotateAnimation(app.prevRotateAngle.toFloat(), correctedDirection.toFloat(),
+                                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
+                                0.5f)
                     }
+
+                    an.duration = 30
+                    an.repeatCount = 0
+                    an.fillAfter = true
+
+                    needle.startAnimation(an)
+                    app.prevRotateAngle = correctedDirection
                 }
     }
 
