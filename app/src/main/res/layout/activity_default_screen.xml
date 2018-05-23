@@ -7,12 +7,13 @@
     android:orientation="horizontal"
     tools:context=".activity.DefaultActivity">
 
-    <View
+    <ImageView
         android:id="@+id/container"
         android:layout_width="450dp"
         android:layout_height="299dp"
         android:layout_marginBottom="63dp"
         android:layout_marginTop="62dp"
+        android:layout_marginEnd="82dp"
         android:background="@drawable/background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -20,12 +21,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.51" />
+    <ImageView
 
-    <View
         android:id="@+id/circleView"
         android:layout_width="300dp"
         android:layout_height="300dp"
-        android:background="@drawable/circle2"
+        android:background="@drawable/circle"
         app:layout_constraintStart_toStartOf="@+id/container"
         app:layout_constraintTop_toTopOf="@+id/container" />
 
@@ -35,9 +36,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="92dp"
         android:layout_marginTop="48dp"
+        android:visibility="visible"
         android:text="Gate"
         android:textSize="22sp"
-        android:textColor="#174FF2"
+        android:textColor="#0072DA"
         app:layout_constraintStart_toStartOf="@+id/circleView"
         app:layout_constraintTop_toTopOf="@+id/circleView" />
 
@@ -47,9 +49,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="148dp"
         android:layout_marginTop="44dp"
-        android:text=""
         android:textSize="26sp"
-        android:textColor="#174FF2"
+        android:textColor="#0072DA"
         app:layout_constraintStart_toStartOf="@+id/circleView"
         app:layout_constraintTop_toTopOf="@+id/circleView" />
 
@@ -61,6 +62,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="18dp"
+        android:visibility="visible"
         android:scaleType="center"
         app:layout_constraintBottom_toBottomOf="@+id/circleView"
         app:layout_constraintEnd_toEndOf="@+id/circleView"
@@ -75,19 +77,20 @@
         android:layout_marginBottom="52dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:visibility="visible"
         android:text="30 min to gate"
         android:textSize="20sp"
-        android:textColor="#174FF2"
+        android:textColor="#0072DA"
         app:layout_constraintBottom_toBottomOf="@+id/circleView"
         app:layout_constraintEnd_toEndOf="@+id/circleView"
         app:layout_constraintStart_toStartOf="@+id/circleView" />
 
     <ImageView
         android:id="@+id/timeline"
-        android:layout_width="80dp"
+        android:layout_width="78dp"
         android:layout_height="299dp"
         android:layout_marginEnd="124dp"
-        android:background="@drawable/timeline"
+        android:background="@drawable/timeline_blue"
         app:layout_constraintEnd_toEndOf="@+id/container"
         app:layout_constraintTop_toTopOf="@+id/container" />
 
@@ -108,13 +111,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="86dp"
-        android:layout_marginEnd="66dp"
+        android:layout_marginEnd="78dp"
         android:textColor="#EFEF11"
         android:textStyle="bold"
-        android:text="00min"
+        android:text="00\nmin"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="@+id/container"
         app:layout_constraintTop_toTopOf="@+id/container" />
+
+    <ImageView
+        android:id="@+id/tub_circle"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="78dp"
+        android:layout_marginEnd="66dp"
+        app:srcCompat="@drawable/tub_circle"
+        app:layout_constraintEnd_toEndOf="@+id/container"
+        app:layout_constraintTop_toTopOf="@+id/container"/>
 
     <TextView
         android:id="@+id/boardingTimeText"
@@ -174,17 +187,82 @@
         app:layout_constraintEnd_toEndOf="@+id/container"
         app:layout_constraintBottom_toBottomOf="@+id/container" />
 
+    <ImageView
+        android:id="@+id/bigNotiBackground"
+        android:layout_width="450dp"
+        android:layout_height="299dp"
+        android:layout_marginBottom="63dp"
+        android:layout_marginTop="62dp"
+        android:layout_marginEnd="82dp"
+        android:visibility="visible"
+        android:background="@drawable/big_noti_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.51"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.51" />
+
+    <TextView
+        android:id="@+id/bigNotificationText"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="62dp"
+        android:layout_marginEnd="12dp"
+        android:visibility="visible"
+        android:textSize="28sp"
+        android:textColor="#A32344"
+        android:gravity="center"
+        android:text="Your gate number has been changed"
+        app:layout_constraintEnd_toEndOf="@+id/container"
+        app:layout_constraintBottom_toBottomOf="@+id/container"/>
+
+    <ImageView
+        android:id="@+id/bigNotificationIcon"
+        android:layout_width="76dp"
+        android:layout_height="95dp"
+        android:layout_marginBottom="140dp"
+        android:layout_marginEnd="124dp"
+        android:visibility="visible"
+        android:background="@drawable/big_notification"
+        app:layout_constraintBottom_toBottomOf="@+id/container"
+        app:layout_constraintEnd_toEndOf="@+id/container" />
+
+    <TextView
+        android:id="@+id/smallNotificationText"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="192dp"
+        android:gravity="center"
+        android:visibility="invisible"
+        android:text="Last toilets nearby"
+        android:textColor="#258900"
+        android:textSize="22sp"
+        app:layout_constraintStart_toStartOf="@+id/circleView"
+        app:layout_constraintTop_toTopOf="@+id/circleView" />
+
+    <ImageView
+        android:id="@+id/smallNotificationIcon"
+        android:layout_width="76dp"
+        android:layout_height="95dp"
+        android:layout_marginBottom="128dp"
+        android:layout_marginEnd="268dp"
+        android:background="@drawable/toilet"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/container"
+        app:layout_constraintEnd_toEndOf="@+id/container" />
+
     <Button
-        android:id="@+id/ticketActivity"
-        android:layout_width="68dp"
-        android:layout_height="39dp"
+        android:id="@+id/button"
+        android:layout_width="92dp"
+        android:layout_height="286dp"
         android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="20dp"
         android:layout_marginStart="4dp"
         android:layout_marginTop="8dp"
-        android:onClick="launchTicketActivity"
-        android:text="Ticket"
-        android:textSize="10sp"
+        android:onClick="updateView"
+        android:background="@drawable/button"
         app:layout_constraintBottom_toBottomOf="@+id/container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/container"

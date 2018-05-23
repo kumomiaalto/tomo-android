@@ -205,7 +205,7 @@ class TicketInfoActivity : AppCompatActivity() {
     }
 
     fun launchDefaultActivity(view: View) {
-        toast("Launch Default Activity")
+        //toast("Launch Default Activity")
         val intent  = Intent(this, DefaultActivity::class.java)
         startActivity(intent)
     }
@@ -219,9 +219,9 @@ class TicketInfoActivity : AppCompatActivity() {
         seat.text = ticket.seat
         ticketClass.text = ticket.ticketClass
         gate.text = ticket.gate
-        navigationGate.text = "Gate " + ticket.gate
+        flightTime.text = ticket.departureTime
         flightNumber.text = ticket.flightNumber
         sourceDestination.text = "${ticket.source} → ${ticket.destination}"
-        time.text = LocalDateTime().toString("HH:mm")
+        terminal.text = ticket.terminal
     }
 }

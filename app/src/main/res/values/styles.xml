@@ -8,6 +8,7 @@
         <item name="android:colorAccent" tools:targetApi="21">@color/orange</item>
         <item name="android:colorPrimary" tools:targetApi="21">@color/orange</item>
         <item name="android:colorPrimaryDark" tools:targetApi="21">@color/violet</item>
+        <item name="fontFamily">@font/anago</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

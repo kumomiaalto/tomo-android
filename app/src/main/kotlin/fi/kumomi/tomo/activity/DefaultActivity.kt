@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit
 import android.os.Vibrator
 import android.util.Log
 import fi.kumomi.tomo.model.Beacon
-import kotlinx.android.synthetic.main.activity_default_screen.*
 import org.joda.time.DateTime
 import org.joda.time.Interval
 
@@ -42,6 +41,7 @@ class DefaultActivity : AppCompatActivity() {
     private var proximiObservableSwitch = PublishSubject.create<Boolean>()
     private var proximiApi: ProximiioAPI? = null
     private var notificationLock = false
+    private var mode = "big_notification" //default, small_notification or big_notification
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,7 +105,8 @@ class DefaultActivity : AppCompatActivity() {
 
                             val beacon = app.beacons[it.proximiEvent?.beacon?.mac]
 
-                            if (beacon!!.beaconType == "notification") {
+                            if (beacon!!.beaconType == "notification") { //not needed anymore, TODO: remove
+                                mode = "big_notification"
                                 setNotificationData(beacon)
                                 toggleTicketBoxElements(false)
                                 toggleNotificatioBoxElements(true)
@@ -117,7 +118,29 @@ class DefaultActivity : AppCompatActivity() {
                                     toggleNotificatioBoxElements(false)
                                     toggleTicketBoxElements(true)
                                 }, 10000)
-                            } else if (beacon.beaconType == "direction") {
+                            }
+                            if (beacon!!.beaconType == "big_notification") {
+                                mode = "big_notification"
+                                setBigNotificationData(beacon)
+                                toggleBigNotificationBoxElements(true)
+                                notificationLock = true
+                                vibrator.vibrate(3000)
+                                //TODO: add big sound
+                                //TODO: make button blink until being clicked
+                                //button listener necessary?
+                            }
+                            if (beacon!!.beaconType == "small_notification") {
+                                mode = "small_notification"
+                                setSmallNotificationData(beacon)
+                                toggleSmallNotificationBoxElements(true)
+                                toggleNeedleViewElements(false)
+                                notificationLock = true
+                                vibrator.vibrate(3000)
+                                //TODO: add small sound
+                                //TODO: make button blink until being clicked
+                                //button listener necessary?
+                            }
+                            else if (beacon.beaconType == "direction") { //not needed anymore, TODO: remove
                                 setDirectionNotificationData(beacon)
                                 toggleNeedleViewElements(false)
                                 toggleDirectionNotificationBoxElements(true)
@@ -145,11 +168,41 @@ class DefaultActivity : AppCompatActivity() {
                 }
     }
 
-    fun launchTicketActivity(view: View) {
-        toast("Launching Ticket Info")
-        val intent = Intent(this, TicketInfoActivity::class.java)
-        startActivity(intent)
+    //fun launchTicketActivity(view: View) {
+    //    toast("Launching Ticket Info")
+    //    val intent = Intent(this, TicketInfoActivity::class.java)
+    //    startActivity(intent)
+    //}
+
+    /**
+     * Update the interface based on button input
+     * If a notification is shown, switch back to default screen
+     * Otherwise to ticket info
+     */
+    fun updateView(view: View) {
+        if (mode == "big_notification") {
+            notificationLock = false
+            toggleBigNotificationBoxElements(false)
+            mode = "default"
+        } else if (mode == "small_notification") {
+            notificationLock = false
+            toggleSmallNotificationBoxElements(false)
+            toggleNeedleViewElements(true)
+            timeline.setImageResource(R.drawable.timeline_blue)
+            container.setImageResource(R.drawable.background)
+            mode = "default"
+        } else {
+            val intent = Intent(this, TicketInfoActivity::class.java)
+            startActivity(intent)
+        }
     }
+
+    //fun buttonBlink() {
+    //    button.setBackgroundResource(R.drawable.button2)
+    //    Handler().postDelayed({
+    //        button.setBackgroundResource(R.drawable.button)
+    //    }, 500)
+    //}
 
     override fun onResume() {
         super.onResume()
@@ -177,7 +230,7 @@ class DefaultActivity : AppCompatActivity() {
                 .toString("HH:mm")
         //TODO: calc boardingTime - current time
         //val timeToBoarding =
-        timeUntilBoarding.text = "25min" //timeUntilBoarding
+        timeUntilBoarding.text = "25\nmin" //timeUntilBoarding
         gate.text = ticket.gate
         flightNumber.text = ticket.flightNumber
         //sourceDestination.text = "${ticket.source} → ${ticket.destination}"
@@ -206,24 +259,83 @@ class DefaultActivity : AppCompatActivity() {
         //notificationText.visibility = viewVisibility
     }
 
+    /**
+     * Sets the visibility of visuals for big notification
+     */
+    private fun toggleBigNotificationBoxElements(visible: Boolean) {
+        val viewVisibility = getViewVisibility(visible)
+
+        bigNotiBackground.visibility = viewVisibility
+        bigNotificationText.visibility = viewVisibility
+        bigNotificationIcon.visibility = viewVisibility
+    }
+
+    /**
+     * Sets the visibility of visuals for small notification
+     */
+    private fun toggleSmallNotificationBoxElements(visible: Boolean) {
+        val viewVisibility = getViewVisibility(visible)
+
+        smallNotificationText.visibility = viewVisibility
+        smallNotificationIcon.visibility = viewVisibility
+    }
+
+    /**
+     * Not needed anymore
+     * //TODO: remove
+     */
     private fun setNotificationData(beacon: Beacon) {
         //notificationText.text = beacon.text
         //notificationIcon.setImageResource(resources.getIdentifier(beacon.icon, "drawable", packageName))
     }
 
+    /**
+     * Sets visual elements for a big notification
+     * such as gate change, go to gate reminder etc.
+     */
+    private fun setBigNotificationData(beacon: Beacon) {
+        bigNotiBackground.setImageResource(R.drawable.big_noti_background)
+        bigNotificationText.text = beacon.text
+        bigNotificationIcon.setImageResource(R.drawable.big_notification)
+    }
+
+    /**
+     * Sets visual elements for a big notification
+     * such as gate change, go to gate reminder etc.
+     */
+    private fun setSmallNotificationData(beacon: Beacon) {
+        container.setImageResource(R.drawable.small_noti_background)
+        timeline.setImageResource(R.drawable.timeline_green)
+        smallNotificationText.text = beacon.text
+        smallNotificationIcon.setImageResource(resources.getIdentifier(beacon.icon, "drawable", packageName))
+    }
+
+    /**
+     * Not needed anymore
+     * //TODO: remove
+     */
     private fun setDirectionNotificationData(beacon: Beacon) {
         //directionNotificationText.text = beacon.text
         //directionNotificationIcon.setImageResource(resources.getIdentifier(beacon.icon, "drawable", packageName))
     }
 
+    /**
+     * Not needed anymore
+     * //TODO: remove
+     */
     private fun toggleNeedleViewElements(visible: Boolean) {
         val viewVisibility = getViewVisibility(visible)
 
-        circleView.visibility = viewVisibility
+        gateText.visibility = viewVisibility
+        gate.visibility = viewVisibility
         needle.visibility = viewVisibility
         timeToGate.visibility = viewVisibility
     }
 
+    /**
+     * Not needed anymore
+     * //TODO: remove
+     */
     private fun toggleDirectionNotificationBoxElements(visible: Boolean) {
         val viewVisibility = getViewVisibility(visible)
 
