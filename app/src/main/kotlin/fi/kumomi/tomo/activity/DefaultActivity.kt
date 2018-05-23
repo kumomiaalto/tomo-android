@@ -13,7 +13,6 @@ import fi.kumomi.tomo.R
 import fi.kumomi.tomo.TomoApplication
 import fi.kumomi.tomo.flowable.ProximiEventsFlowable
 import fi.kumomi.tomo.model.AirlineTicket
-import fi.kumomi.tomo.model.DevicePosOrientEvent
 import fi.kumomi.tomo.observable.AirlineTicketObservable
 import io.proximi.proximiiolibrary.ProximiioAPI
 import io.proximi.proximiiolibrary.ProximiioOptions
@@ -31,12 +30,13 @@ import java.util.concurrent.TimeUnit
 import android.os.Vibrator
 import android.util.Log
 import fi.kumomi.tomo.model.Beacon
+import fi.kumomi.tomo.model.ProximiEvent
 import org.joda.time.DateTime
 import org.joda.time.Interval
 
 
 class DefaultActivity : AppCompatActivity() {
-    private var flightInfoObservableSwitch = PublishSubject.create<Boolean>()
+    private var airlineTicketObservableSwitch = PublishSubject.create<Boolean>()
     // All proximi events come to proximiObservableSwitch
     private var proximiObservableSwitch = PublishSubject.create<Boolean>()
     private var proximiApi: ProximiioAPI? = null
@@ -60,7 +60,7 @@ class DefaultActivity : AppCompatActivity() {
 
         val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
-        val flightInfoObservable = AirlineTicketObservable.create()
+        val airlineTicketObservable = AirlineTicketObservable.create()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .repeatWhen { it.delay(30, TimeUnit.SECONDS) }
@@ -71,8 +71,8 @@ class DefaultActivity : AppCompatActivity() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
 
-        flightInfoObservableSwitch
-                .switchMap { if(it) flightInfoObservable else Observable.never() }
+        airlineTicketObservableSwitch
+                .switchMap { if(it) airlineTicketObservable else Observable.never() }
                 .subscribe {
                     app.ticket = it
                     updateTicketData(it)
@@ -82,16 +82,16 @@ class DefaultActivity : AppCompatActivity() {
         proximiObservableSwitch
                 .switchMap { if(it) proximiObservable else Observable.never() }
                 .subscribe {
-                    if (it.eventType == DevicePosOrientEvent.BEACON_FOUND_EVENT) {
-                        Log.i(TAG, "Beacon found - ${it.proximiEvent?.beacon?.mac}")
+                    if (it.eventType == ProximiEvent.BEACON_FOUND_EVENT) {
+                        Log.i(TAG, "Beacon found - ${it.beacon?.name}")
                     }
 
-                    if (!notificationLock && it.eventType == DevicePosOrientEvent.BEACON_FOUND_EVENT &&
-                            app.beacons.containsKey(it.proximiEvent?.beacon?.mac)) {
+                    if (!notificationLock && it.eventType == ProximiEvent.BEACON_FOUND_EVENT &&
+                            app.beacons.containsKey(it.beacon?.name)) {
                         var seenBeacon = false
 
-                        if (app.seenBeacons.containsKey(it.proximiEvent?.beacon?.mac)) {
-                            val seenTime = app.seenBeacons[it.proximiEvent?.beacon?.mac]
+                        if (app.seenBeacons.containsKey(it.beacon?.name)) {
+                            val seenTime = app.seenBeacons[it.beacon?.name]
                             val currentTime = DateTime()
                             val interval = Interval(seenTime, currentTime)
 
@@ -107,9 +107,9 @@ class DefaultActivity : AppCompatActivity() {
 
                         if (!seenBeacon) {
                             Log.i(TAG, "We have never seen this beacon until now - Storing ref")
-                            app.seenBeacons[it.proximiEvent?.beacon?.mac] = DateTime()
+                            app.seenBeacons[it.beacon?.name] = DateTime()
 
-                            val beacon = app.beacons[it.proximiEvent?.beacon?.mac]
+                            val beacon = app.beacons[it.beacon?.name]
 
                             if (beacon!!.beaconType == "notification") {
                                 setNotificationData(beacon)
@@ -142,8 +142,8 @@ class DefaultActivity : AppCompatActivity() {
                         }
                     }
 
-                    if (it.eventType == DevicePosOrientEvent.GEOFENCE_ENTER_EVENT) {
-                        val geofenceMetadata = it.proximiEvent?.geofence?.metadata
+                    if (it.eventType == ProximiEvent.GEOFENCE_ENTER_EVENT) {
+                        val geofenceMetadata = it.geofence?.metadata
                         if (geofenceMetadata != null) {
                             Log.i(TAG, "Geofence Enter! Time - ${geofenceMetadata["time"]} --- Tag --- ${geofenceMetadata["tag"]}")
                             geofenceTime.text = "${geofenceMetadata["time"]} min"
@@ -164,13 +164,13 @@ class DefaultActivity : AppCompatActivity() {
         toggleTicketBoxElements(true)
         toggleNotificatioBoxElements(false)
 
-        flightInfoObservableSwitch.onNext(true)
+        airlineTicketObservableSwitch.onNext(true)
         proximiObservableSwitch.onNext(true)
     }
 
     override fun onPause() {
         super.onPause()
-        flightInfoObservableSwitch.onNext(false)
+        airlineTicketObservableSwitch.onNext(false)
         proximiObservableSwitch.onNext(false)
     }
 

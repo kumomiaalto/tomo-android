@@ -4,19 +4,18 @@ import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
-import fi.kumomi.tomo.model.DevicePosOrientEvent
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.FlowableOnSubscribe
 
 class DeviceOrientationFlowable {
     companion object {
-        fun create(sensorManager: SensorManager): Flowable<DevicePosOrientEvent> {
+        fun create(sensorManager: SensorManager): Flowable<SensorEvent> {
             var sensorListener : SensorEventListener? = null
 
-            return Flowable.create(FlowableOnSubscribe<DevicePosOrientEvent> { emitter ->
+            return Flowable.create(FlowableOnSubscribe<SensorEvent> { emitter ->
                 sensorListener = object : SensorEventListener {
-                    override fun onSensorChanged(event: SensorEvent) = emitter.onNext(DevicePosOrientEvent(sensorEvent = event, eventType = DevicePosOrientEvent.ORIENTATION_EVENT))
+                    override fun onSensorChanged(event: SensorEvent) = emitter.onNext(event)
                     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
                 }
 

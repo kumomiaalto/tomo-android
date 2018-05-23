@@ -61,7 +61,7 @@ class TomoApplication : MultiDexApplication() {
                 .retryWhen { it.flatMap { Observable.timer(2, TimeUnit.SECONDS) } }
                 .subscribe {
                     for (beacon in it) {
-                        beacons[beacon.mac] = beacon
+                        beacons[beacon.name] = beacon
                     }
                 }
     }

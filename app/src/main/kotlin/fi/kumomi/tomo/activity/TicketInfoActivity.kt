@@ -38,16 +38,15 @@ import android.location.Location
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
-import fi.kumomi.tomo.model.DevicePosOrientEvent
+import fi.kumomi.tomo.model.ProximiEvent
 import fi.kumomi.tomo.observable.NeedleDirectionObservable
 import fi.kumomi.tomo.util.RadiansToDegrees
 import io.reactivex.processors.PublishProcessor
 import org.jetbrains.anko.toast
 import kotlin.math.abs
 
-
 class TicketInfoActivity : AppCompatActivity() {
-    private var flightInfoObservableSubject = PublishSubject.create<Boolean>()
+    private var airlineTicketObservableSubject = PublishSubject.create<Boolean>()
     private var needleDirectionObservableSubject = PublishSubject.create<Boolean>()
     private var proximiFlowableSubject = PublishProcessor.create<Boolean>()
     private var orientationFlowableSubject = PublishProcessor.create<Boolean>()
@@ -74,7 +73,7 @@ class TicketInfoActivity : AppCompatActivity() {
         proximiApi?.setAuth(Config.PROXIMI_API_KEY)
         proximiApi?.setActivity(this)
 
-        val flightInfoObservable = AirlineTicketObservable.create()
+        val airlineTicketObservable = AirlineTicketObservable.create()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .repeatWhen { it.delay(30, TimeUnit.SECONDS) }
@@ -88,6 +87,7 @@ class TicketInfoActivity : AppCompatActivity() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
 
+        // Polling needle direction which is being updated in background thread at close to 60Hz
         val needleDirectionObservable = NeedleDirectionObservable.create(applicationContext as TomoApplication)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -98,9 +98,9 @@ class TicketInfoActivity : AppCompatActivity() {
                 .subscribe {
                     val currentPosition = app.proximiPosition
 
-                    if (it.eventType == DevicePosOrientEvent.POSITION_EVENT) {
-                        currentPosition["lat"] = it.proximiEvent?.location?.lat
-                        currentPosition["lng"] = it.proximiEvent?.location?.lon
+                    if (it.eventType == ProximiEvent.POSITION_EVENT) {
+                        currentPosition["lat"] = it.location?.lat
+                        currentPosition["lng"] = it.location?.lon
                     }
                 }
 
@@ -109,12 +109,12 @@ class TicketInfoActivity : AppCompatActivity() {
                 .switchMap { if(it) orientationFlowable else Flowable.never() }
                 .subscribe {
                     if (app.startGeofence != null) {
-                        if (it.sensorEvent?.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER))
-                            System.arraycopy(it.sensorEvent?.values,
+                        if (it.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER))
+                            System.arraycopy(it.values,
                                     0, app.accelerometerReading, 0, app.accelerometerReading.size)
 
-                        if (it.sensorEvent?.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD))
-                            System.arraycopy(it.sensorEvent?.values,
+                        if (it.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD))
+                            System.arraycopy(it.values,
                                     0, app.magnetometerReading, 0, app.magnetometerReading.size)
 
                         SensorManager.getRotationMatrix(app.rotationMatrix, null, app.accelerometerReading, app.magnetometerReading)
@@ -156,8 +156,8 @@ class TicketInfoActivity : AppCompatActivity() {
                     }
                 }
 
-        flightInfoObservableSubject
-                .switchMap { if(it) flightInfoObservable else Observable.never() }
+        airlineTicketObservableSubject
+                .switchMap { if(it) airlineTicketObservable else Observable.never() }
                 .subscribe {
                     app.ticket = it
                     updateTicketData(it)
@@ -183,7 +183,7 @@ class TicketInfoActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        flightInfoObservableSubject.onNext(true)
+        airlineTicketObservableSubject.onNext(true)
         proximiFlowableSubject.onNext(true)
         orientationFlowableSubject.onNext(true)
         needleDirectionObservableSubject.onNext(true)
@@ -191,7 +191,7 @@ class TicketInfoActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        flightInfoObservableSubject.onNext(false)
+        airlineTicketObservableSubject.onNext(false)
         proximiFlowableSubject.onNext(false)
         orientationFlowableSubject.onNext(false)
         needleDirectionObservableSubject.onNext(false)
@@ -228,9 +228,7 @@ class TicketInfoActivity : AppCompatActivity() {
 
         // recreate the new Bitmap via a couple conditions
         val rotatedBitmap = Bitmap.createBitmap(bitmapOrg, 0, 0, width, height, matrix, true)
-        //BitmapDrawable bmd = new BitmapDrawable( rotatedBitmap );
 
-        //imageView.setImageBitmap( rotatedBitmap );
         imageView.setImageDrawable(BitmapDrawable(resources, rotatedBitmap))
         imageView.scaleType = ScaleType.CENTER
     }
