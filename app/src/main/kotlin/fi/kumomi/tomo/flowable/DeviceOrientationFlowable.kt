@@ -22,8 +22,8 @@ class DeviceOrientationFlowable {
                 val accelerationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
                 val magneticFieldSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
 
-                sensorManager.registerListener(sensorListener, accelerationSensor, SensorManager.SENSOR_DELAY_NORMAL,  SensorManager.SENSOR_DELAY_UI)
-                sensorManager.registerListener(sensorListener, magneticFieldSensor, SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_UI)
+                sensorManager.registerListener(sensorListener, accelerationSensor, SensorManager.SENSOR_DELAY_NORMAL,  SensorManager.SENSOR_DELAY_GAME)
+                sensorManager.registerListener(sensorListener, magneticFieldSensor, SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_GAME)
             }, BackpressureStrategy.BUFFER).doOnCancel({
                 sensorManager.unregisterListener(sensorListener)
             })

@@ -27,13 +27,11 @@ class TomoApplication : MultiDexApplication() {
 
     val accelerometerReading = FloatArray(3)
     val magnetometerReading = FloatArray(3)
+    val lowPassAlpha = 0.97f
 
     val rotationMatrix = FloatArray(9)
     val orientationAngles = FloatArray(3)
 
-    // Defines number of values to consider for moving average of calculated
-    // needle rotation angles
-    val rotateAngleMovingWindow = DescriptiveStatistics(30)
     var rotateAngle: Double = 0F.toDouble()
     var prevRotateAngle: Double = 0F.toDouble()
 

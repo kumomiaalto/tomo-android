@@ -37,6 +37,8 @@ import android.hardware.Sensor
 import android.location.Location
 import android.util.Log
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.RotateAnimation
 import android.widget.ImageView
 import fi.kumomi.tomo.model.ProximiEvent
 import fi.kumomi.tomo.observable.NeedleDirectionObservable
@@ -119,13 +121,17 @@ class TicketInfoActivity : AppCompatActivity() {
                 .switchMap { if(it) orientationFlowable else Flowable.never() }
                 .subscribe {
                     if (app.startGeofence != null) {
-                        if (it.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER))
-                            System.arraycopy(it.values,
-                                    0, app.accelerometerReading, 0, app.accelerometerReading.size)
+                        if (it.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)) {
+                            app.accelerometerReading[0] = app.lowPassAlpha * app.accelerometerReading[0] + (1 - app.lowPassAlpha) * it.values[0]
+                            app.accelerometerReading[1] = app.lowPassAlpha * app.accelerometerReading[1] + (1 - app.lowPassAlpha) * it.values[1]
+                            app.accelerometerReading[2] = app.lowPassAlpha * app.accelerometerReading[2] + (1 - app.lowPassAlpha) * it.values[2]
+                        }
 
-                        if (it.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD))
-                            System.arraycopy(it.values,
-                                    0, app.magnetometerReading, 0, app.magnetometerReading.size)
+                        if (it.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)) {
+                            app.magnetometerReading[0] = app.lowPassAlpha * app.magnetometerReading[0] + (1 - app.lowPassAlpha) * it.values[0]
+                            app.magnetometerReading[1] = app.lowPassAlpha * app.magnetometerReading[1] + (1 - app.lowPassAlpha) * it.values[1]
+                            app.magnetometerReading[2] = app.lowPassAlpha * app.magnetometerReading[2] + (1 - app.lowPassAlpha) * it.values[2]
+                        }
 
                         SensorManager.getRotationMatrix(app.rotationMatrix, null, app.accelerometerReading, app.magnetometerReading)
 
@@ -133,6 +139,7 @@ class TicketInfoActivity : AppCompatActivity() {
                         // is first element
                         SensorManager.getOrientation(app.rotationMatrix, app.orientationAngles)
                         var azimuth = RadiansToDegrees.convert(app.orientationAngles[0].toDouble())
+                        azimuth = (azimuth + 360) % 360
 
                         val currentLocationObj     = Location("current")
                         val destinationLocationObj = Location("destination")
@@ -151,13 +158,9 @@ class TicketInfoActivity : AppCompatActivity() {
                             destinationLocationObj.longitude = app.bootstrapDestination["long"]!!
                         }
 
-                        val geoField = GeomagneticField(currentLocationObj.latitude.toFloat(),
-                                currentLocationObj.longitude.toFloat(), currentLocationObj.altitude.toFloat(),
-                                System.currentTimeMillis())
-
-                        // Adjusts azimuth to have true north pole reference
-                        // Sujith testing says this is not required based on testing experience
-                        // azimuth -= geoField.declination
+//                        val geoField = GeomagneticField(currentLocationObj.latitude.toFloat(),
+//                                currentLocationObj.longitude.toFloat(), currentLocationObj.altitude.toFloat(),
+//                                System.currentTimeMillis())
 
                         Log.i(TAG, "Azimuth - $azimuth")
 
@@ -168,13 +171,10 @@ class TicketInfoActivity : AppCompatActivity() {
 //                         if (bearingTo < 0)
 //                             bearingTo += 360
 
-                        val rotateAngle = bearingTo - azimuth
-
 //                        if (rotateAngle < 0)
 //                            rotateAngle += 360
 
-                        app.rotateAngleMovingWindow.addValue(rotateAngle)
-                        app.rotateAngle = app.rotateAngleMovingWindow.mean
+                        app.rotateAngle = azimuth - bearingTo
                     }
                 }
 
@@ -188,15 +188,18 @@ class TicketInfoActivity : AppCompatActivity() {
         needleDirectionObservableSubject
                 .switchMap { if(it) needleDirectionObservable else Observable.never() }
                 .subscribe {
-                    var correctedDirection = it - 90
-                    if (correctedDirection < 0) {
-                        correctedDirection = 360 - correctedDirection
+                    var correctedDirection = it + 90
+
+                    if (correctedDirection > 360) {
+                        correctedDirection -= 360
                     }
+
+                    correctedDirection = 360 - correctedDirection
 
                     Log.i(TAG, correctedDirection.toString())
                     rotationAngleText.text = correctedDirection.toString()
 
-                    if (abs(app.prevRotateAngle - correctedDirection) > 3) {
+                    if (abs(app.prevRotateAngle - correctedDirection) > 5) {
                         rotateImageView(needle, R.drawable.needle, correctedDirection)
                         app.prevRotateAngle = correctedDirection
                     }
