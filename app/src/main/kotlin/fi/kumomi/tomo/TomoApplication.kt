@@ -13,24 +13,33 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics
 import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
 
-// All global app level data is stored here
+/**
+ * All of global app level data is stored here
+ */
 class TomoApplication : MultiDexApplication() {
     var geofences: List<Geofence>? = null
     val beacons: HashMap<String, Beacon> = HashMap()
     val seenBeacons: HashMap<String?, DateTime> = HashMap()
     var startGeofence: Geofence? = null
     var ticket: AirlineTicket? = null
-    val proximiPosition: HashMap<String, Double?> = hashMapOf("lat" to 0F.toDouble(), "lng" to 0F.toDouble())
+    val currentPosition: HashMap<String, Double?> = hashMapOf("lat" to null, "long" to null)
+    val destinationPosition: HashMap<String, Double?> = hashMapOf("lat" to null, "long" to null)
 
     val accelerometerReading = FloatArray(3)
     val magnetometerReading = FloatArray(3)
 
     val rotationMatrix = FloatArray(9)
     val orientationAngles = FloatArray(3)
-    // Defines number of values to consider for moving average of needle rotation angles
+
+    // Defines number of values to consider for moving average of calculated
+    // needle rotation angles
     val rotateAngleMovingWindow = DescriptiveStatistics(30)
     var rotateAngle: Double = 0F.toDouble()
     var prevRotateAngle: Double = 0F.toDouble()
+
+    // Dummy start and end locations
+    val bootstrapOrigin: HashMap<String, Double> = hashMapOf("lat" to 0F.toDouble(), "long" to 0F.toDouble())
+    val bootstrapDestination: HashMap<String, Double> = hashMapOf("lat" to 90F.toDouble(), "long" to 0F.toDouble())
 
     override fun onCreate() {
         super.onCreate()
@@ -54,7 +63,7 @@ class TomoApplication : MultiDexApplication() {
                     Log.i(TAG, "Lng - ${startGeofence?.latlng?.lng}")
                 }
 
-        // Load beacons from web api
+        // Load beacons from Tomo Web API
         BeaconsObservable.create()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.newThread())

@@ -52,7 +52,6 @@ class TicketInfoActivity : AppCompatActivity() {
     private var orientationFlowableSubject = PublishProcessor.create<Boolean>()
     private var proximiApi: ProximiioAPI? = null
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ticket_info)
@@ -93,18 +92,29 @@ class TicketInfoActivity : AppCompatActivity() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .repeatWhen { it.delay(30, TimeUnit.MILLISECONDS) }
 
+        // update current position and destination position based on navigation beacon seen
         proximiFlowableSubject
                 .switchMap { if(it) proximiEventsFlowable else Flowable.never() }
                 .subscribe {
-                    val currentPosition = app.proximiPosition
+                    val currentPosition = app.currentPosition
+                    val destinationPosition = app.destinationPosition
 
-                    if (it.eventType == ProximiEvent.POSITION_EVENT) {
-                        currentPosition["lat"] = it.location?.lat
-                        currentPosition["lng"] = it.location?.lon
+                    if (it.eventType == ProximiEvent.BEACON_FOUND_EVENT &&
+                            app.beacons.containsKey(it.beacon?.name) &&
+                            app.beacons[it.beacon?.name]?.beaconType == "navigation") {
+
+                        val beacon = app.beacons[it.beacon?.name]
+                        currentPosition["lat"]  = beacon?.latitude?.toDouble()
+                        currentPosition["long"] = beacon?.longitude?.toDouble()
+
+                        // TODO: Need to handle case when next_beacon is null - that is at Gate
+                        val nextBeacon = app.beacons[beacon?.nextBeacon]
+                        destinationPosition["lat"]  = nextBeacon?.latitude?.toDouble()
+                        destinationPosition["long"] = nextBeacon?.longitude?.toDouble()
                     }
                 }
 
-        // Needle direction stream processing code
+        // Needle direction stream processing
         orientationFlowableSubject
                 .switchMap { if(it) orientationFlowable else Flowable.never() }
                 .subscribe {
@@ -124,32 +134,44 @@ class TicketInfoActivity : AppCompatActivity() {
                         SensorManager.getOrientation(app.rotationMatrix, app.orientationAngles)
                         var azimuth = RadiansToDegrees.convert(app.orientationAngles[0].toDouble())
 
-                        val currentLocationObj = Location("current")
-                        currentLocationObj.latitude = app.proximiPosition["lat"]!!
-                        currentLocationObj.longitude = app.proximiPosition["lng"]!!
-
+                        val currentLocationObj     = Location("current")
                         val destinationLocationObj = Location("destination")
-                        destinationLocationObj.latitude = 90.0
-                        destinationLocationObj.longitude = 0.0
+
+                        if (app.currentPosition["lat"] != null) {
+                            currentLocationObj.latitude = app.currentPosition["lat"]!!
+                            currentLocationObj.longitude = app.currentPosition["long"]!!
+
+                            destinationLocationObj.latitude = app.destinationPosition["lat"]!!
+                            destinationLocationObj.longitude = app.destinationPosition["long"]!!
+                        } else {
+                            currentLocationObj.latitude = app.bootstrapOrigin["lat"]!!
+                            currentLocationObj.longitude = app.bootstrapOrigin["long"]!!
+
+                            destinationLocationObj.latitude = app.bootstrapDestination["lat"]!!
+                            destinationLocationObj.longitude = app.bootstrapDestination["long"]!!
+                        }
 
                         val geoField = GeomagneticField(currentLocationObj.latitude.toFloat(),
                                 currentLocationObj.longitude.toFloat(), currentLocationObj.altitude.toFloat(),
                                 System.currentTimeMillis())
 
                         // Adjusts azimuth to have true north pole reference
-                        azimuth -= geoField.declination
+                        // Sujith testing says this is not required based on testing experience
+                        // azimuth -= geoField.declination
 
                         Log.i(TAG, "Azimuth - $azimuth")
 
                         // this is angle for a straight between current pos to destination pos w.r.t north pole line from
                         // current position
-                        var bearingTo = currentLocationObj.bearingTo(destinationLocationObj)
-                        if (bearingTo < 0)
-                            bearingTo += 360
+                        val bearingTo = currentLocationObj.bearingTo(destinationLocationObj)
 
-                        var rotateAngle = bearingTo - azimuth
-                        if (rotateAngle < 0)
-                            rotateAngle += 360
+//                         if (bearingTo < 0)
+//                             bearingTo += 360
+
+                        val rotateAngle = bearingTo - azimuth
+
+//                        if (rotateAngle < 0)
+//                            rotateAngle += 360
 
                         app.rotateAngleMovingWindow.addValue(rotateAngle)
                         app.rotateAngle = app.rotateAngleMovingWindow.mean
