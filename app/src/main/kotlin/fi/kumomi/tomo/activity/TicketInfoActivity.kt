@@ -199,8 +199,16 @@ class TicketInfoActivity : AppCompatActivity() {
                     Log.i(TAG, correctedDirection.toString())
                     rotationAngleText.text = correctedDirection.toString()
 
-                    if (abs(app.prevRotateAngle - correctedDirection) > 5) {
-                        rotateImageView(needle, R.drawable.needle, correctedDirection)
+                    if (abs(app.prevRotateAngle - correctedDirection) > 0) {
+                        val an = RotateAnimation(-app.prevRotateAngle.toFloat(), -correctedDirection.toFloat(),
+                                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
+                                0.5f)
+
+                        an.duration = 500
+                        an.repeatCount = 0
+                        an.fillAfter = true
+
+                        needle.startAnimation(an)
                         app.prevRotateAngle = correctedDirection
                     }
                 }

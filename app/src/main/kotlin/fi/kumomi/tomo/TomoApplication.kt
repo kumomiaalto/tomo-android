@@ -27,7 +27,7 @@ class TomoApplication : MultiDexApplication() {
 
     val accelerometerReading = FloatArray(3)
     val magnetometerReading = FloatArray(3)
-    val lowPassAlpha = 0.97f
+    val lowPassAlpha = 0.7f
 
     val rotationMatrix = FloatArray(9)
     val orientationAngles = FloatArray(3)
