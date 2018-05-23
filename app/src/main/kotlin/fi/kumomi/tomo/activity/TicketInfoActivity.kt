@@ -92,7 +92,7 @@ class TicketInfoActivity : AppCompatActivity() {
         val needleDirectionObservable = NeedleDirectionObservable.create(applicationContext as TomoApplication)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .repeatWhen { it.delay(30, TimeUnit.MILLISECONDS) }
+                .repeatWhen { it.delay(40, TimeUnit.MILLISECONDS) }
 
         // update current position and destination position based on navigation beacon seen
         proximiFlowableSubject
@@ -214,7 +214,7 @@ class TicketInfoActivity : AppCompatActivity() {
                                 0.5f)
                     }
 
-                    an.duration = 30
+                    an.duration = 50
                     an.repeatCount = 0
                     an.fillAfter = true
 
