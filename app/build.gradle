@@ -63,6 +63,7 @@ dependencies {
     implementation 'joda-time:joda-time:2.9.9'
     implementation 'com.uber.autodispose:autodispose-kotlin:0.8.0'
     implementation 'com.uber.autodispose:autodispose-android-kotlin:0.8.0'
+    implementation 'org.kie.modules:org-apache-commons-math:6.5.0.Final'
 }
 
 apply plugin: 'kotlin-android-extensions'
