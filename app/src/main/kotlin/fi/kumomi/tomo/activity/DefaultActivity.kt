@@ -289,6 +289,23 @@ class DefaultActivity : AppCompatActivity() {
                 }
     }
 
+    fun updateView(view: View) {
+        if (mode == "big_notification") {
+            notificationLock = false
+            toggleBigNotificationBoxElements(false)
+            mode = "default"
+        } else if (mode == "small_notification") {
+            notificationLock = false
+            toggleSmallNotificationBoxElements(false)
+            timeline.setImageResource(R.drawable.timeline_blue)
+            container.setImageResource(R.drawable.background)
+            mode = "default"
+        } else {
+            val intent = Intent(this, TicketInfoActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         toggleTicketBoxElements(true)
