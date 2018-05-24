@@ -12,10 +12,10 @@
 .idea/gradle.xml
 .idea/assetWizardSettings.xml
 .idea/misc.xml
+.idea/kotlinc.xml
 .idea/dictionaries
 .idea/libraries
 .idea/caches
-.idea/misc.xml
 .idea/inspectionProfiles
 
 # Built application files
