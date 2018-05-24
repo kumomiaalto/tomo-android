@@ -219,7 +219,10 @@ class TicketInfoActivity : AppCompatActivity() {
         seat.text = ticket.seat
         ticketClass.text = ticket.ticketClass
         gate.text = ticket.gate
-        flightTime.text = ticket.departureTime
+        boardingTime.text = ISODateTimeFormat.dateTimeParser()
+                .parseDateTime(ticket.boardingTime)
+                .withZone(DateTimeZone.forTimeZone(TimeZone.getDefault()))
+                .toString("HH:mm")
         flightNumber.text = ticket.flightNumber
         sourceDestination.text = "${ticket.source} → ${ticket.destination}"
         terminal.text = ticket.terminal
