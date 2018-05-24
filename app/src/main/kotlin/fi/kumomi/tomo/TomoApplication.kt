@@ -9,7 +9,6 @@ import fi.kumomi.tomo.observable.BeaconsObservable
 import fi.kumomi.tomo.observable.GeofencesObservable
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics
 import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
 
