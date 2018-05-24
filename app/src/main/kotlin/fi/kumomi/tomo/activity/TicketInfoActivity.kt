@@ -66,18 +66,22 @@ class TicketInfoActivity : AppCompatActivity() {
     }
 
     private fun updateTicketData(ticket: AirlineTicket) {
-        name.text = "${ticket.firstName} ${ticket.lastName}"
         flightTime.text = ISODateTimeFormat.dateTimeParser()
                 .parseDateTime(ticket.departureTime)
                 .withZone(DateTimeZone.forTimeZone(TimeZone.getDefault()))
                 .toString("HH:mm")
-        seat.text = ticket.seat
-        ticketClass.text = ticket.ticketClass
+        boardingTime.text = ISODateTimeFormat.dateTimeParser()
+                .parseDateTime(ticket.boardingTime)
+                .withZone(DateTimeZone.forTimeZone(TimeZone.getDefault()))
+                .toString("HH:mm")
+
+        name.text = "${ticket.firstName} ${ticket.lastName}"
         gate.text = ticket.gate
-        navigationGate.text = "Gate " + ticket.gate
+        ticketClass.text = ticket.ticketClass
+        seat.text = ticket.seat
         flightNumber.text = ticket.flightNumber
         sourceDestination.text = "${ticket.source} → ${ticket.destination}"
-        time.text = LocalDateTime().toString("HH:mm")
+        terminal.text = ticket.terminal
     }
 
     companion object {

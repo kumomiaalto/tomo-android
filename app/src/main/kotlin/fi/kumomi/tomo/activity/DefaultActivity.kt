@@ -154,7 +154,6 @@ class DefaultActivity : AppCompatActivity() {
                                 mode = "small_notification"
                                 setSmallNotificationData(beacon)
                                 toggleSmallNotificationBoxElements(true)
-                                toggleNeedleViewElements(false)
                                 notificationLock = true
                                 vibrator.vibrate(3000)
                                 //TODO: add small sound
@@ -290,15 +289,9 @@ class DefaultActivity : AppCompatActivity() {
                 }
     }
 
-    fun launchTicketActivity(view: View) {
-        val intent = Intent(this, TicketInfoActivity::class.java)
-        startActivity(intent)
-    }
-
     override fun onResume() {
         super.onResume()
         toggleTicketBoxElements(true)
-        toggleNotificatioBoxElements(false)
 
         airlineTicketObservableSwitch.onNext(true)
         proximiFlowableSubject.onNext(true)
@@ -413,6 +406,14 @@ class DefaultActivity : AppCompatActivity() {
 
         imageView.setImageDrawable(BitmapDrawable(resources, rotatedBitmap))
         imageView.scaleType = ImageView.ScaleType.CENTER
+    }
+
+    private fun getViewVisibility(visible: Boolean): Int {
+        var viewVisibility = View.VISIBLE
+        if (!visible)
+            viewVisibility = View.INVISIBLE
+
+        return viewVisibility
     }
 
     companion object {
