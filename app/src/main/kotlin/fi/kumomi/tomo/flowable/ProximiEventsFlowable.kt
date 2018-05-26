@@ -30,7 +30,7 @@ class ProximiEventsFlowable {
                     }
                     //when beacons is found
                     override fun foundDevice(device: ProximiioBLEDevice?, registered: Boolean) {
-                        if (device?.proximity == ProximiioBLEDevice.Proximity.NEAR) {
+                        if (device?.proximity == ProximiioBLEDevice.Proximity.IMMEDIATE) {
                             val proximiEvent = ProximiEvent(beacon = device, eventType = ProximiEvent.BEACON_FOUND_EVENT)
                             emitter.onNext(proximiEvent)
                         }
