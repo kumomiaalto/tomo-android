@@ -99,7 +99,7 @@ class DefaultActivity : AppCompatActivity() {
         val needleDirectionObservable = NeedleDirectionObservable.create(applicationContext as TomoApplication)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .repeatWhen { it.delay(40, TimeUnit.MILLISECONDS) }
+                .repeatWhen { it.delay(18, TimeUnit.MILLISECONDS) }
 
         airlineTicketObservableSwitch
                 .switchMap { if(it) airlineTicketObservable else Observable.never() }
@@ -234,9 +234,9 @@ class DefaultActivity : AppCompatActivity() {
                             app.magnetoWindow1.addValue(it.values[1].toDouble())
                             app.magnetoWindow2.addValue(it.values[2].toDouble())
 
-                            app.accelerometerReading[0] = app.magnetoWindow0.mean.toFloat()
-                            app.accelerometerReading[1] = app.magnetoWindow1.mean.toFloat()
-                            app.accelerometerReading[2] = app.magnetoWindow2.mean.toFloat()
+                            app.magnetometerReading[0] = app.magnetoWindow0.mean.toFloat()
+                            app.magnetometerReading[1] = app.magnetoWindow1.mean.toFloat()
+                            app.magnetometerReading[2] = app.magnetoWindow2.mean.toFloat()
                         }
 
                         SensorManager.getRotationMatrix(app.rotationMatrix, null, app.accelerometerReading, app.magnetometerReading)
@@ -312,7 +312,7 @@ class DefaultActivity : AppCompatActivity() {
                                 0.5f)
                     }
 
-                    an.duration = 50
+                    an.duration = 17
                     an.repeatCount = 0
                     an.fillAfter = true
 

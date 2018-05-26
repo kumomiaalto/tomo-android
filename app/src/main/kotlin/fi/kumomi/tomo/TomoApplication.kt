@@ -36,13 +36,13 @@ class TomoApplication : MultiDexApplication() {
     var rotateAngle: Double = 0F.toDouble()
     var prevRotateAngle: Double = 0F.toDouble()
 
-    val acceleroWindow0 = DescriptiveStatistics(30)
-    val acceleroWindow1 = DescriptiveStatistics(30)
-    val acceleroWindow2 = DescriptiveStatistics(30)
+    val acceleroWindow0 = DescriptiveStatistics(10)
+    val acceleroWindow1 = DescriptiveStatistics(10)
+    val acceleroWindow2 = DescriptiveStatistics(10)
 
-    val magnetoWindow0 = DescriptiveStatistics(30)
-    val magnetoWindow1 = DescriptiveStatistics(30)
-    val magnetoWindow2 = DescriptiveStatistics(30)
+    val magnetoWindow0 = DescriptiveStatistics(10)
+    val magnetoWindow1 = DescriptiveStatistics(10)
+    val magnetoWindow2 = DescriptiveStatistics(10)
 
     // Dummy start and end locations
     val bootstrapOrigin: HashMap<String, Double> = hashMapOf("lat" to 0F.toDouble(), "long" to 0F.toDouble())
