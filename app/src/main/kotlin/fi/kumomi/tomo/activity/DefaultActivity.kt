@@ -141,6 +141,7 @@ class DefaultActivity : AppCompatActivity() {
 
                             val beacon = app.beacons[it.beacon?.name]
 
+                            //TODO Wait till 1 minute after seeing the beacon to set the notification
                             if (beacon!!.beaconType == "big_notification") {
                                 mode = "big_notification"
                                 setBigNotificationData(beacon)
@@ -163,6 +164,7 @@ class DefaultActivity : AppCompatActivity() {
                                 button.startAnimation(animation)
                             }
 
+                            //TODO Toggle needle and time adn gate off.
                             if (beacon.beaconType == "small_notification") {
                                 mode = "small_notification"
                                 setSmallNotificationData(beacon)
@@ -199,19 +201,22 @@ class DefaultActivity : AppCompatActivity() {
                         currentPosition["lat"]  = beacon?.latitude?.toDouble()
                         currentPosition["long"] = beacon?.longitude?.toDouble()
 
-                        // TODO: Need to handle case when next_beacon is null - that is at Gate
+                        // TODO: Need to handle case when next_beacon is null - that is at Gate. (SUJITH: We can have you have reached message and Icon.)
                         val nextBeacon = app.beacons[beacon?.nextBeacon]
                         destinationPosition["lat"]  = nextBeacon?.latitude?.toDouble()
                         destinationPosition["long"] = nextBeacon?.longitude?.toDouble()
                     }
 
+                    //Todo: Time to gate from Beacon, Not from Geofence.
                     if (it.eventType == ProximiEvent.GEOFENCE_ENTER_EVENT) {
                         val geofenceMetadata = it.geofence?.metadata
                         if (geofenceMetadata != null) {
                             Log.i(TAG, "Geofence Enter! Time - ${geofenceMetadata["time"]} --- Tag --- ${geofenceMetadata["tag"]}")
                             timeToGate.text = "${geofenceMetadata["time"]} min to gate"
                         }
+                    // Todo: If beacon type = security, Stop polling for Flight data, and set flight data manually.
 
+                       //Todo If beacon type = Gate change, Override all other navigation and update origin and destination, Lets discuss this.
                     }
                 }
 
@@ -239,6 +244,9 @@ class DefaultActivity : AppCompatActivity() {
                             app.magnetometerReading[2] = app.magnetoWindow2.mean.toFloat()
                         }
 
+                        //Todo Calculate Azimuth so that it is not affected by pitch and roll.
+                        //https://stackoverflow.com/questions/15649684/how-should-i-calculate-azimuth-pitch-orientation-when-my-android-device-isnt
+
                         SensorManager.getRotationMatrix(app.rotationMatrix, null, app.accelerometerReading, app.magnetometerReading)
 
                         // In orientation angles calculated difference between magnetic north and device current orientation
@@ -249,6 +257,8 @@ class DefaultActivity : AppCompatActivity() {
 
                         val currentLocationObj     = Location("current")
                         val destinationLocationObj = Location("destination")
+
+                        //Todo, If "proximi_Location != 0" {current location = Proximi Location }
 
                         if (app.currentPosition["lat"] != null) {
                             currentLocationObj.latitude = app.currentPosition["lat"]!!
@@ -296,6 +306,7 @@ class DefaultActivity : AppCompatActivity() {
                     correctedDirection = 360 - correctedDirection
 
                     Log.i(DefaultActivity.TAG, correctedDirection.toString())
+                    // Todo If (Currentangle - Prevangle ) >5 or <-5  then update needle position.
 
                     // Handling animation to not jump at 360 to 0 angle boundary
                     val an: RotateAnimation = if (app.prevRotateAngle > 330 && correctedDirection < 30) {
