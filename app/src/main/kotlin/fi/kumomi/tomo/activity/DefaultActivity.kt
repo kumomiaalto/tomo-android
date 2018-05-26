@@ -10,6 +10,8 @@ import android.graphics.drawable.BitmapDrawable
 import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.location.Location
+import android.media.AudioManager
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Vibrator
@@ -18,7 +20,9 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
+import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
 import android.widget.ImageView
 import fi.kumomi.tomo.Config
@@ -41,10 +45,7 @@ import io.reactivex.processors.PublishProcessor
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_default_screen.*
-import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
-import org.joda.time.Interval
-import org.joda.time.LocalDateTime
+import org.joda.time.*
 import org.joda.time.format.ISODateTimeFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -59,6 +60,7 @@ class DefaultActivity : AppCompatActivity() {
     private var proximiApi: ProximiioAPI? = null
     private var notificationLock = false
     private var mode = "big_notification" //default, small_notification or big_notification
+    private var mediaPlayer = MediaPlayer()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -145,20 +147,42 @@ class DefaultActivity : AppCompatActivity() {
                                 toggleBigNotificationBoxElements(true)
                                 notificationLock = true
                                 vibrator.vibrate(3000)
-                                //TODO: add big sound
-                                //TODO: make button blink until being clicked
-                                //button listener necessary?
+
+                                // Play sound
+                                mediaPlayer = MediaPlayer.create(this, R.raw.big_sound)
+                                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
+                                mediaPlayer.isLooping = true
+                                mediaPlayer.start()
+
+                                // Flash button
+                                val animation = AlphaAnimation(1F, 0F)
+                                animation.duration = 200
+                                animation.interpolator = LinearInterpolator()
+                                animation.repeatCount = Animation.INFINITE
+                                animation.repeatMode = Animation.REVERSE
+                                button.startAnimation(animation)
                             }
 
-                            if (beacon!!.beaconType == "small_notification") {
+                            if (beacon.beaconType == "small_notification") {
                                 mode = "small_notification"
                                 setSmallNotificationData(beacon)
                                 toggleSmallNotificationBoxElements(true)
                                 notificationLock = true
                                 vibrator.vibrate(3000)
-                                //TODO: add small sound
-                                //TODO: make button blink until being clicked
-                                //button listener necessary?
+
+                                // Play sound
+                                mediaPlayer = MediaPlayer.create(this, R.raw.small_sound)
+                                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
+                                mediaPlayer.isLooping = true
+                                mediaPlayer.start()
+
+                                // Flash button
+                                val animation = AlphaAnimation(1F, 0F)
+                                animation.duration = 200
+                                animation.interpolator = LinearInterpolator()
+                                animation.repeatCount = Animation.INFINITE
+                                animation.repeatMode = Animation.REVERSE
+                                button.startAnimation(animation)
                             }
                         }
                     }
@@ -196,15 +220,23 @@ class DefaultActivity : AppCompatActivity() {
                 .subscribe {
                     if (app.startGeofence != null) {
                         if (it.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)) {
-                            app.accelerometerReading[0] = app.lowPassAlpha * app.accelerometerReading[0] + (1 - app.lowPassAlpha) * it.values[0]
-                            app.accelerometerReading[1] = app.lowPassAlpha * app.accelerometerReading[1] + (1 - app.lowPassAlpha) * it.values[1]
-                            app.accelerometerReading[2] = app.lowPassAlpha * app.accelerometerReading[2] + (1 - app.lowPassAlpha) * it.values[2]
+                            app.acceleroWindow0.addValue(it.values[0].toDouble())
+                            app.acceleroWindow1.addValue(it.values[1].toDouble())
+                            app.acceleroWindow2.addValue(it.values[2].toDouble())
+
+                            app.accelerometerReading[0] = app.acceleroWindow0.mean.toFloat()
+                            app.accelerometerReading[1] = app.acceleroWindow1.mean.toFloat()
+                            app.accelerometerReading[2] = app.acceleroWindow2.mean.toFloat()
                         }
 
                         if (it.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)) {
-                            app.magnetometerReading[0] = app.lowPassAlpha * app.magnetometerReading[0] + (1 - app.lowPassAlpha) * it.values[0]
-                            app.magnetometerReading[1] = app.lowPassAlpha * app.magnetometerReading[1] + (1 - app.lowPassAlpha) * it.values[1]
-                            app.magnetometerReading[2] = app.lowPassAlpha * app.magnetometerReading[2] + (1 - app.lowPassAlpha) * it.values[2]
+                            app.magnetoWindow0.addValue(it.values[0].toDouble())
+                            app.magnetoWindow1.addValue(it.values[1].toDouble())
+                            app.magnetoWindow2.addValue(it.values[2].toDouble())
+
+                            app.accelerometerReading[0] = app.magnetoWindow0.mean.toFloat()
+                            app.accelerometerReading[1] = app.magnetoWindow1.mean.toFloat()
+                            app.accelerometerReading[2] = app.magnetoWindow2.mean.toFloat()
                         }
 
                         SensorManager.getRotationMatrix(app.rotationMatrix, null, app.accelerometerReading, app.magnetometerReading)
@@ -290,6 +322,9 @@ class DefaultActivity : AppCompatActivity() {
     }
 
     fun updateView(view: View) {
+        mediaPlayer.stop()
+        button.clearAnimation()
+
         if (mode == "big_notification") {
             notificationLock = false
             toggleBigNotificationBoxElements(false)
@@ -325,21 +360,21 @@ class DefaultActivity : AppCompatActivity() {
     }
 
     private fun updateTicketData(ticket: AirlineTicket) {
-        boardingTime.text = ISODateTimeFormat.dateTimeParser()
+        val currentTime = LocalDateTime().toDateTime()
+        val boardingDateTime = ISODateTimeFormat.dateTimeParser()
                 .parseDateTime(ticket.boardingTime)
                 .withZone(DateTimeZone.forTimeZone(TimeZone.getDefault()))
-                .toString("HH:mm")
-        flightTime.text = ISODateTimeFormat.dateTimeParser()
+        val flightDateTime = ISODateTimeFormat.dateTimeParser()
                 .parseDateTime(ticket.departureTime)
                 .withZone(DateTimeZone.forTimeZone(TimeZone.getDefault()))
-                .toString("HH:mm")
-        //TODO: calc boardingTime - current time
-        //val timeToBoarding =
-        timeUntilBoarding.text = "25\nmin" //timeUntilBoarding
+        val timeToBoarding = Minutes.minutesBetween(currentTime, boardingDateTime).minutes
+
+        flightTime.text = flightDateTime.toString("HH:mm")
+        boardingTime.text = boardingDateTime.toString("HH:mm")
+        timeUntilBoarding.text = "$timeToBoarding\nmin"
         gate.text = ticket.gate
         flightNumber.text = ticket.flightNumber
-        //sourceDestination.text = "${ticket.source} → ${ticket.destination}"
-        time.text = LocalDateTime().toString("HH:mm")
+        time.text = currentTime.toString("HH:mm")
     }
 
     private fun toggleTicketBoxElements(visible: Boolean) {

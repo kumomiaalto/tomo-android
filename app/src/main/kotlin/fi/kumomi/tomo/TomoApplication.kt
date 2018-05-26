@@ -9,6 +9,7 @@ import fi.kumomi.tomo.observable.BeaconsObservable
 import fi.kumomi.tomo.observable.GeofencesObservable
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics
 import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
 
@@ -34,6 +35,14 @@ class TomoApplication : MultiDexApplication() {
 
     var rotateAngle: Double = 0F.toDouble()
     var prevRotateAngle: Double = 0F.toDouble()
+
+    val acceleroWindow0 = DescriptiveStatistics(30)
+    val acceleroWindow1 = DescriptiveStatistics(30)
+    val acceleroWindow2 = DescriptiveStatistics(30)
+
+    val magnetoWindow0 = DescriptiveStatistics(30)
+    val magnetoWindow1 = DescriptiveStatistics(30)
+    val magnetoWindow2 = DescriptiveStatistics(30)
 
     // Dummy start and end locations
     val bootstrapOrigin: HashMap<String, Double> = hashMapOf("lat" to 0F.toDouble(), "long" to 0F.toDouble())
