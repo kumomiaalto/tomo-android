@@ -17,6 +17,7 @@
 .idea/libraries
 .idea/caches
 .idea/inspectionProfiles
+.idea/misc.xml
 
 # Built application files
 *.apk
