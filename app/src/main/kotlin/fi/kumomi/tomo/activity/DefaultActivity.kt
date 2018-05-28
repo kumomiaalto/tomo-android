@@ -57,10 +57,7 @@ class DefaultActivity : AppCompatActivity() {
     private var notificationLock = false
     private var mode = "big_notification" //default, small_notification or big_notification
     private var mediaPlayer = MediaPlayer()
-    private val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-    private val app = applicationContext as TomoApplication
     private var currentLocationFromProximi = false
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -177,13 +174,15 @@ class DefaultActivity : AppCompatActivity() {
                         if (app.currentPosition["lat"] != null) {
                             currentLocationObj.latitude = app.currentPosition["lat"]!!
                             currentLocationObj.longitude = app.currentPosition["lon"]!!
-
-                            destinationLocationObj.latitude = app.destinationPosition["lat"]!!
-                            destinationLocationObj.longitude = app.destinationPosition["lon"]!!
                         } else {
                             currentLocationObj.latitude = app.bootstrapOrigin["lat"]!!
                             currentLocationObj.longitude = app.bootstrapOrigin["lon"]!!
+                        }
 
+                        if (app.destinationPosition["lat"] != null) {
+                            destinationLocationObj.latitude = app.destinationPosition["lat"]!!
+                            destinationLocationObj.longitude = app.destinationPosition["lon"]!!
+                        } else {
                             destinationLocationObj.latitude = app.bootstrapDestination["lat"]!!
                             destinationLocationObj.longitude = app.bootstrapDestination["lon"]!!
                         }
@@ -309,6 +308,7 @@ class DefaultActivity : AppCompatActivity() {
     }
 
     private fun updateCurrentPosition(proximiLocation: ProximiLocation?) {
+        val app = applicationContext as TomoApplication
         app.currentPosition["lat"] = proximiLocation?.lat
         app.currentPosition["lon"] = proximiLocation?.lon
         currentLocationFromProximi = true
@@ -316,6 +316,8 @@ class DefaultActivity : AppCompatActivity() {
 
     private fun processNotificationBeacon(proximiBeacon: ProximiioBLEDevice?) {
         var seenNotificationBeacon = false
+        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        val app = applicationContext as TomoApplication
 
         if (app.seenBeacons.containsKey(proximiBeacon?.name)) {
             val seenTime = app.seenBeacons[proximiBeacon?.name]
@@ -347,7 +349,7 @@ class DefaultActivity : AppCompatActivity() {
                     setBigNotificationData(apiBeacon)
 
                     toggleBigNotificationBoxElements(true)
-                    vibrator.vibrate(3000)
+                    vibrator?.vibrate(3000)
 
                     // Play sound
                     mediaPlayer = MediaPlayer.create(this, R.raw.big_sound)
@@ -371,7 +373,7 @@ class DefaultActivity : AppCompatActivity() {
                 setSmallNotificationData(apiBeacon)
                 toggleSmallNotificationBoxElements(true)
                 notificationLock = true
-                vibrator.vibrate(3000)
+                vibrator?.vibrate(3000)
 
                 // Play sound
                 mediaPlayer = MediaPlayer.create(this, R.raw.small_sound)
@@ -391,6 +393,7 @@ class DefaultActivity : AppCompatActivity() {
     }
 
     private fun processNavigationBeacon(proximiBeacon: ProximiioBLEDevice?) {
+        val app = applicationContext as TomoApplication
         val apiBeacon = app.apiBeacons[proximiBeacon?.name]
 
         if (!currentLocationFromProximi) {
