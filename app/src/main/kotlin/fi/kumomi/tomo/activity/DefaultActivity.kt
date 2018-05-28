@@ -3,10 +3,6 @@ package fi.kumomi.tomo.activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.graphics.drawable.BitmapDrawable
 import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.location.Location
@@ -16,7 +12,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Vibrator
 import android.support.v7.app.AppCompatActivity
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
@@ -24,7 +19,6 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
-import android.widget.ImageView
 import fi.kumomi.tomo.Config
 import fi.kumomi.tomo.R
 import fi.kumomi.tomo.TomoApplication
@@ -33,10 +27,12 @@ import fi.kumomi.tomo.flowable.ProximiEventsFlowable
 import fi.kumomi.tomo.model.AirlineTicket
 import fi.kumomi.tomo.model.Beacon
 import fi.kumomi.tomo.model.ProximiEvent
+import fi.kumomi.tomo.model.ProximiLocation
 import fi.kumomi.tomo.observable.AirlineTicketObservable
 import fi.kumomi.tomo.observable.NeedleDirectionObservable
 import fi.kumomi.tomo.util.RadiansToDegrees
 import io.proximi.proximiiolibrary.ProximiioAPI
+import io.proximi.proximiiolibrary.ProximiioBLEDevice
 import io.proximi.proximiiolibrary.ProximiioOptions
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -49,11 +45,11 @@ import org.joda.time.*
 import org.joda.time.format.ISODateTimeFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 
 
 class DefaultActivity : AppCompatActivity() {
     private var airlineTicketObservableSwitch = PublishSubject.create<Boolean>()
-    // All proximi events come to proximiFlowableSwitch
     private val proximiFlowableSubject = PublishProcessor.create<Boolean>()
     private val needleDirectionObservableSubject = PublishSubject.create<Boolean>()
     private val orientationFlowableSubject = PublishProcessor.create<Boolean>()
@@ -61,6 +57,10 @@ class DefaultActivity : AppCompatActivity() {
     private var notificationLock = false
     private var mode = "big_notification" //default, small_notification or big_notification
     private var mediaPlayer = MediaPlayer()
+    private val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    private val app = applicationContext as TomoApplication
+    private var currentLocationFromProximi = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,7 +79,6 @@ class DefaultActivity : AppCompatActivity() {
         proximiApi?.setAuth(Config.PROXIMI_API_KEY)
         proximiApi?.setActivity(this)
 
-        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
         //makes call to API every 30s
         val airlineTicketObservable = AirlineTicketObservable.create()
@@ -108,115 +107,32 @@ class DefaultActivity : AppCompatActivity() {
                     updateTicketData(it)
                 }
 
-        // Process proximi events - geofence,  seeing beacons
+        // Process proximi events - position and all beacons
         proximiFlowableSubject
                 .switchMap { if(it) proximiFlowable else Flowable.never() }
                 .subscribe {
 
-                    // Logic to filter beacons for notification and showing the notification
-                    if (!notificationLock && it.eventType == ProximiEvent.BEACON_FOUND_EVENT &&
-                            app.beacons.containsKey(it.beacon?.name) &&
-                            app.beacons[it.beacon?.name]?.beaconType != "navigation") {
+                    // Updating current position from proximi, and setting a flag that location is coming from proximi
+                    if (it.eventType == ProximiEvent.POSITION_EVENT) updateCurrentPosition(it.location)
 
-                        var seenBeacon = false
+                    // All beacons processing
+                    if (it.eventType == ProximiEvent.BEACON_FOUND_EVENT && app.apiBeacons.containsKey(it.beacon?.name)) {
 
-                        if (app.seenBeacons.containsKey(it.beacon?.name)) {
-                            val seenTime = app.seenBeacons[it.beacon?.name]
-                            val currentTime = DateTime()
-                            val interval = Interval(seenTime, currentTime)
+                        // notifications beacon processing - when any new notification type is added, code goes here
+                        if ((app.apiBeacons[it.beacon?.name]?.beaconType == "big_notification" ||
+                                app.apiBeacons[it.beacon?.name]?.beaconType == "small_notification") &&
+                                !notificationLock) processNotificationBeacon(it.beacon)
 
-                            Log.i(TAG, "This Beacon was last seen at ${seenTime.toString()}")
-                            Log.i(TAG, "Time since we saw this beacon ${interval.toDuration().standardMinutes}")
+                        // navigation beacon processing
+                        if (app.apiBeacons[it.beacon?.name]?.beaconType == "navigation") processNavigationBeacon(it.beacon)
 
-                            // compares minutes since when beacon was seen.
-                            // to compare seconds use standardSeconds
-                            if (interval.toDuration().standardSeconds < 120) {
-                                seenBeacon = true
-                            }
-                        }
+                        // security beacon processing
+                        // Todo: If beacon type = security, Stop polling for Flight data, and set flight data manually.
+                        if (app.apiBeacons[it.beacon?.name]?.beaconType == "security") processSecurityBeacon(it.beacon)
 
-                        if (!seenBeacon) {
-                            Log.i(TAG, "We have never seen this beacon until now - Storing ref")
-                            app.seenBeacons[it.beacon?.name] = DateTime()
-
-                            val beacon = app.beacons[it.beacon?.name]
-
-                            //TODO Wait till 1 minute after seeing the beacon to set the notification
-                            if (beacon!!.beaconType == "big_notification") {
-                                mode = "big_notification"
-                                setBigNotificationData(beacon)
-                                toggleBigNotificationBoxElements(true)
-                                notificationLock = true
-                                vibrator.vibrate(3000)
-
-                                // Play sound
-                                mediaPlayer = MediaPlayer.create(this, R.raw.big_sound)
-                                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
-                                mediaPlayer.isLooping = true
-                                mediaPlayer.start()
-
-                                // Flash button
-                                val animation = AlphaAnimation(1F, 0F)
-                                animation.duration = 200
-                                animation.interpolator = LinearInterpolator()
-                                animation.repeatCount = Animation.INFINITE
-                                animation.repeatMode = Animation.REVERSE
-                                button.startAnimation(animation)
-                            }
-
-                            //TODO Toggle needle and time adn gate off.
-                            if (beacon.beaconType == "small_notification") {
-                                mode = "small_notification"
-                                setSmallNotificationData(beacon)
-                                toggleSmallNotificationBoxElements(true)
-                                notificationLock = true
-                                vibrator.vibrate(3000)
-
-                                // Play sound
-                                mediaPlayer = MediaPlayer.create(this, R.raw.small_sound)
-                                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
-                                mediaPlayer.isLooping = true
-                                mediaPlayer.start()
-
-                                // Flash button
-                                val animation = AlphaAnimation(1F, 0F)
-                                animation.duration = 200
-                                animation.interpolator = LinearInterpolator()
-                                animation.repeatCount = Animation.INFINITE
-                                animation.repeatMode = Animation.REVERSE
-                                button.startAnimation(animation)
-                            }
-                        }
-                    }
-
-                    // Logic to filter navigation beacons and setting origin and destination
-                    if (it.eventType == ProximiEvent.BEACON_FOUND_EVENT &&
-                            app.beacons.containsKey(it.beacon?.name) &&
-                            app.beacons[it.beacon?.name]?.beaconType == "navigation") {
-
-                        val currentPosition = app.currentPosition
-                        val destinationPosition = app.destinationPosition
-                        val beacon = app.beacons[it.beacon?.name]
-
-                        currentPosition["lat"]  = beacon?.latitude?.toDouble()
-                        currentPosition["long"] = beacon?.longitude?.toDouble()
-
-                        // TODO: Need to handle case when next_beacon is null - that is at Gate. (SUJITH: We can have you have reached message and Icon.)
-                        val nextBeacon = app.beacons[beacon?.nextBeacon]
-                        destinationPosition["lat"]  = nextBeacon?.latitude?.toDouble()
-                        destinationPosition["long"] = nextBeacon?.longitude?.toDouble()
-                    }
-
-                    //Todo: Time to gate from Beacon, Not from Geofence.
-                    if (it.eventType == ProximiEvent.GEOFENCE_ENTER_EVENT) {
-                        val geofenceMetadata = it.geofence?.metadata
-                        if (geofenceMetadata != null) {
-                            Log.i(TAG, "Geofence Enter! Time - ${geofenceMetadata["time"]} --- Tag --- ${geofenceMetadata["tag"]}")
-                            timeToGate.text = "${geofenceMetadata["time"]} min to gate"
-                        }
-                    // Todo: If beacon type = security, Stop polling for Flight data, and set flight data manually.
-
-                       //Todo If beacon type = Gate change, Override all other navigation and update origin and destination, Lets discuss this.
+                        // gate change beacon processing
+                        // Todo If beacon type = Gate change, Override all other navigation and update origin and destination, Lets discuss this.
+                        if (app.apiBeacons[it.beacon?.name]?.beaconType == "gate_change") processGateChangeBeacon(it.beacon)
                     }
                 }
 
@@ -258,20 +174,18 @@ class DefaultActivity : AppCompatActivity() {
                         val currentLocationObj     = Location("current")
                         val destinationLocationObj = Location("destination")
 
-                        //Todo, If "proximi_Location != 0" {current location = Proximi Location }
-
                         if (app.currentPosition["lat"] != null) {
                             currentLocationObj.latitude = app.currentPosition["lat"]!!
-                            currentLocationObj.longitude = app.currentPosition["long"]!!
+                            currentLocationObj.longitude = app.currentPosition["lon"]!!
 
                             destinationLocationObj.latitude = app.destinationPosition["lat"]!!
-                            destinationLocationObj.longitude = app.destinationPosition["long"]!!
+                            destinationLocationObj.longitude = app.destinationPosition["lon"]!!
                         } else {
                             currentLocationObj.latitude = app.bootstrapOrigin["lat"]!!
-                            currentLocationObj.longitude = app.bootstrapOrigin["long"]!!
+                            currentLocationObj.longitude = app.bootstrapOrigin["lon"]!!
 
                             destinationLocationObj.latitude = app.bootstrapDestination["lat"]!!
-                            destinationLocationObj.longitude = app.bootstrapDestination["long"]!!
+                            destinationLocationObj.longitude = app.bootstrapDestination["lon"]!!
                         }
 
 //                        val geoField = GeomagneticField(currentLocationObj.latitude.toFloat(),
@@ -305,30 +219,32 @@ class DefaultActivity : AppCompatActivity() {
 
                     correctedDirection = 360 - correctedDirection
 
-                    Log.i(DefaultActivity.TAG, correctedDirection.toString())
-                    // Todo If (Currentangle - Prevangle ) >5 or <-5  then update needle position.
+                    Log.i(TAG, correctedDirection.toString())
 
-                    // Handling animation to not jump at 360 to 0 angle boundary
-                    val an: RotateAnimation = if (app.prevRotateAngle > 330 && correctedDirection < 30) {
-                        RotateAnimation((app.prevRotateAngle - 360).toFloat(), correctedDirection.toFloat(),
-                                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
-                                0.5f)
-                    } else if (app.prevRotateAngle < 30 && correctedDirection > 330){
-                        RotateAnimation(app.prevRotateAngle.toFloat(), (correctedDirection - 360).toFloat(),
-                                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
-                                0.5f)
-                    } else {
-                        RotateAnimation(app.prevRotateAngle.toFloat(), correctedDirection.toFloat(),
-                                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
-                                0.5f)
+                    // Update only on angle difference of more than x from previous angle
+                    if (abs(app.prevRotateAngle - correctedDirection) > 2) {
+                        // Handling animation to not jump at 360 to 0 angle boundary
+                        val an: RotateAnimation = if (app.prevRotateAngle > 330 && correctedDirection < 30) {
+                            RotateAnimation((app.prevRotateAngle - 360).toFloat(), correctedDirection.toFloat(),
+                                    Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
+                                    0.5f)
+                        } else if (app.prevRotateAngle < 30 && correctedDirection > 330){
+                            RotateAnimation(app.prevRotateAngle.toFloat(), (correctedDirection - 360).toFloat(),
+                                    Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
+                                    0.5f)
+                        } else {
+                            RotateAnimation(app.prevRotateAngle.toFloat(), correctedDirection.toFloat(),
+                                    Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
+                                    0.5f)
+                        }
+
+                        an.duration = 17
+                        an.repeatCount = 0
+                        an.fillAfter = true
+
+                        needle.startAnimation(an)
+                        app.prevRotateAngle = correctedDirection
                     }
-
-                    an.duration = 17
-                    an.repeatCount = 0
-                    an.fillAfter = true
-
-                    needle.startAnimation(an)
-                    app.prevRotateAngle = correctedDirection
                 }
     }
 
@@ -336,19 +252,23 @@ class DefaultActivity : AppCompatActivity() {
         mediaPlayer.stop()
         button.clearAnimation()
 
-        if (mode == "big_notification") {
-            notificationLock = false
-            toggleBigNotificationBoxElements(false)
-            mode = "default"
-        } else if (mode == "small_notification") {
-            notificationLock = false
-            toggleSmallNotificationBoxElements(false)
-            timeline.setImageResource(R.drawable.timeline_blue)
-            container.setImageResource(R.drawable.background)
-            mode = "default"
-        } else {
-            val intent = Intent(this, TicketInfoActivity::class.java)
-            startActivity(intent)
+        when (mode) {
+            "big_notification" -> {
+                notificationLock = false
+                toggleBigNotificationBoxElements(false)
+                mode = "default"
+            }
+            "small_notification" -> {
+                notificationLock = false
+                toggleSmallNotificationBoxElements(false)
+                timeline.setImageResource(R.drawable.timeline_blue)
+                container.setImageResource(R.drawable.background)
+                mode = "default"
+            }
+            else -> {
+                val intent = Intent(this, TicketInfoActivity::class.java)
+                startActivity(intent)
+            }
         }
     }
 
@@ -386,6 +306,115 @@ class DefaultActivity : AppCompatActivity() {
         gate.text = ticket.gate
         flightNumber.text = ticket.flightNumber
         time.text = currentTime.toString("HH:mm")
+    }
+
+    private fun updateCurrentPosition(proximiLocation: ProximiLocation?) {
+        app.currentPosition["lat"] = proximiLocation?.lat
+        app.currentPosition["lon"] = proximiLocation?.lon
+        currentLocationFromProximi = true
+    }
+
+    private fun processNotificationBeacon(proximiBeacon: ProximiioBLEDevice?) {
+        var seenNotificationBeacon = false
+
+        if (app.seenBeacons.containsKey(proximiBeacon?.name)) {
+            val seenTime = app.seenBeacons[proximiBeacon?.name]
+            val currentTime = DateTime()
+            val interval = Interval(seenTime, currentTime)
+
+            Log.i(TAG, "This Beacon was last seen at ${seenTime.toString()}")
+            Log.i(TAG, "Time since we saw this beacon ${interval.toDuration().standardMinutes}")
+
+            // compares minutes since when beacon was seen.
+            // to compare seconds use standardSeconds
+            if (interval.toDuration().standardSeconds < 120) {
+                seenNotificationBeacon = true
+            }
+        }
+
+        if (!seenNotificationBeacon) {
+            Log.i(TAG, "We have never seen this beacon until now - Storing ref")
+            app.seenBeacons[proximiBeacon?.name] = DateTime()
+
+            val apiBeacon = app.apiBeacons[proximiBeacon?.name]
+
+            if (apiBeacon!!.beaconType == "big_notification") {
+                mode = "big_notification"
+                notificationLock = true
+
+                // Showing Big Notification after 1 minute from beacon detect
+                Handler().postDelayed({
+                    setBigNotificationData(apiBeacon)
+
+                    toggleBigNotificationBoxElements(true)
+                    vibrator.vibrate(3000)
+
+                    // Play sound
+                    mediaPlayer = MediaPlayer.create(this, R.raw.big_sound)
+                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
+                    mediaPlayer.isLooping = true
+                    mediaPlayer.start()
+
+                    // Flash button
+                    val animation = AlphaAnimation(1F, 0F)
+                    animation.duration = 200
+                    animation.interpolator = LinearInterpolator()
+                    animation.repeatCount = Animation.INFINITE
+                    animation.repeatMode = Animation.REVERSE
+                    button.startAnimation(animation)
+                }, 60000)
+            }
+
+            //TODO Toggle needle and time to gate and gate
+            if (apiBeacon.beaconType == "small_notification") {
+                mode = "small_notification"
+                setSmallNotificationData(apiBeacon)
+                toggleSmallNotificationBoxElements(true)
+                notificationLock = true
+                vibrator.vibrate(3000)
+
+                // Play sound
+                mediaPlayer = MediaPlayer.create(this, R.raw.small_sound)
+                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
+                mediaPlayer.isLooping = true
+                mediaPlayer.start()
+
+                // Flash button
+                val animation = AlphaAnimation(1F, 0F)
+                animation.duration = 200
+                animation.interpolator = LinearInterpolator()
+                animation.repeatCount = Animation.INFINITE
+                animation.repeatMode = Animation.REVERSE
+                button.startAnimation(animation)
+            }
+        }
+    }
+
+    private fun processNavigationBeacon(proximiBeacon: ProximiioBLEDevice?) {
+        val apiBeacon = app.apiBeacons[proximiBeacon?.name]
+
+        if (!currentLocationFromProximi) {
+            app.currentPosition["lat"] = apiBeacon?.latitude?.toDouble()
+            app.currentPosition["lon"] = apiBeacon?.longitude?.toDouble()
+        }
+
+        // TODO: Need to handle case when next_beacon is null - that is at Gate. (SUJITH: We can have you have reached message and Icon.)
+        // TODO: Hide needle, show text box - you have reached
+        val nextBeacon = app.apiBeacons[apiBeacon?.nextBeacon]
+        app.destinationPosition["lat"]  = nextBeacon?.latitude?.toDouble()
+        app.destinationPosition["lon"] = nextBeacon?.longitude?.toDouble()
+
+        // Set time to gate from beacon data
+        // Todo: toggle between beacon text and time to gate in animation
+        timeToGate.text = "${apiBeacon?.text} min to gate"
+    }
+
+    private fun processSecurityBeacon(proximiBeacon: ProximiioBLEDevice?) {
+
+    }
+
+    private fun processGateChangeBeacon(proximiBeacon: ProximiioBLEDevice?) {
+
     }
 
     private fun toggleTicketBoxElements(visible: Boolean) {
@@ -443,32 +472,6 @@ class DefaultActivity : AppCompatActivity() {
         timeline.setImageResource(R.drawable.timeline_green)
         smallNotificationText.text = beacon.text
         smallNotificationIcon.setImageResource(resources.getIdentifier(beacon.icon, "drawable", packageName))
-    }
-
-    private fun rotateImageView(imageView: ImageView, drawable: Int, rotate: Double) {
-        var rotate = rotate
-
-        // Get the width/height of the drawable
-        val bitmapOrg = BitmapFactory.decodeResource(resources, drawable)
-        val dm = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(dm)
-        val width = bitmapOrg.width
-        val height = bitmapOrg.height
-
-        // Initialize a new Matrix
-        val matrix = Matrix()
-
-        // Decide on how much to rotate
-        rotate %= 360
-
-        // Actually rotate the image
-        matrix.postRotate(rotate.toFloat(), width.toFloat(), height.toFloat())
-
-        // recreate the new Bitmap via a couple conditions
-        val rotatedBitmap = Bitmap.createBitmap(bitmapOrg, 0, 0, width, height, matrix, true)
-
-        imageView.setImageDrawable(BitmapDrawable(resources, rotatedBitmap))
-        imageView.scaleType = ImageView.ScaleType.CENTER
     }
 
     private fun getViewVisibility(visible: Boolean): Int {
