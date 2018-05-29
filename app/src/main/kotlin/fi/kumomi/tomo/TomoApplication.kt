@@ -5,6 +5,7 @@ import android.util.Log
 import fi.kumomi.tomo.model.AirlineTicket
 import fi.kumomi.tomo.model.Beacon
 import fi.kumomi.tomo.model.Geofence
+import fi.kumomi.tomo.observable.BeaconRoutesObservable
 import fi.kumomi.tomo.observable.BeaconsObservable
 import fi.kumomi.tomo.observable.GeofencesObservable
 import io.reactivex.Observable
@@ -18,8 +19,9 @@ import java.util.concurrent.TimeUnit
  * App boots up from here, all the code in this class executes when app boots
  */
 class TomoApplication : MultiDexApplication() {
-    var geofences: List<Geofence>? = null
     val apiBeacons: HashMap<String, Beacon> = HashMap()
+    val apiBeaconRoutes: HashMap<String, List<String>> = HashMap()
+    var currentBeaconRoute: List<String>? = null
     val seenBeacons: HashMap<String?, DateTime> = HashMap()
     var startGeofence: Geofence? = null
     var ticket: AirlineTicket? = null
@@ -50,25 +52,6 @@ class TomoApplication : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
 
-        GeofencesObservable.create()
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.newThread())
-                .retryWhen { it.flatMap { Observable.timer(2, TimeUnit.SECONDS) } }
-                .subscribe {
-                    geofences = it
-                    val iterator = geofences!!.listIterator()
-                    for (geofence in iterator) {
-                        if (geofence.name == "Lobby") {
-                            startGeofence = geofence
-                        }
-                    }
-
-                    Log.i(TAG, "Pointing to geofence")
-                    Log.i(TAG, "${startGeofence?.name}")
-                    Log.i(TAG, "Lat - ${startGeofence?.latlng?.lat}")
-                    Log.i(TAG, "Lng - ${startGeofence?.latlng?.lng}")
-                }
-
         // Load beacons from Tomo Web API
         BeaconsObservable.create()
                 .subscribeOn(Schedulers.io())
@@ -78,6 +61,19 @@ class TomoApplication : MultiDexApplication() {
                     for (beacon in it) {
                         apiBeacons[beacon.name] = beacon
                     }
+                }
+
+        // Load beacon routes from Tomo Web API
+        BeaconRoutesObservable.create()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.newThread())
+                .retryWhen { it.flatMap { Observable.timer(2, TimeUnit.SECONDS) } }
+                .subscribe {
+                    for (beaconRoute in it) {
+                        apiBeaconRoutes[beaconRoute.name] = beaconRoute.beacons
+                    }
+
+                    currentBeaconRoute = apiBeaconRoutes["default"]
                 }
     }
 

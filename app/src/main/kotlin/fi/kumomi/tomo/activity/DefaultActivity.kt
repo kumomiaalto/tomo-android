@@ -47,7 +47,6 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 
-
 class DefaultActivity : AppCompatActivity() {
     private var airlineTicketObservableSwitch = PublishSubject.create<Boolean>()
     private val proximiFlowableSubject = PublishProcessor.create<Boolean>()
@@ -55,6 +54,7 @@ class DefaultActivity : AppCompatActivity() {
     private val orientationFlowableSubject = PublishProcessor.create<Boolean>()
     private var proximiApi: ProximiioAPI? = null
     private var notificationLock = false
+    private var airlineTicketDataOverride = false
     private var mode = "big_notification" //default, small_notification or big_notification
     private var mediaPlayer = MediaPlayer()
     private var currentLocationFromProximi = false
@@ -100,7 +100,8 @@ class DefaultActivity : AppCompatActivity() {
         airlineTicketObservableSwitch
                 .switchMap { if(it) airlineTicketObservable else Observable.never() }
                 .subscribe {
-                    app.ticket = it
+                    if (!airlineTicketDataOverride)
+                        app.ticket = it
                     updateTicketData(it)
                 }
 
@@ -124,7 +125,6 @@ class DefaultActivity : AppCompatActivity() {
                         if (app.apiBeacons[it.beacon?.name]?.beaconType == "navigation") processNavigationBeacon(it.beacon)
 
                         // security beacon processing
-                        // Todo: If beacon type = security, Stop polling for Flight data, and set flight data manually.
                         if (app.apiBeacons[it.beacon?.name]?.beaconType == "security") processSecurityBeacon(it.beacon)
 
                         // gate change beacon processing
@@ -275,7 +275,8 @@ class DefaultActivity : AppCompatActivity() {
         super.onResume()
         toggleTicketBoxElements(true)
 
-        airlineTicketObservableSwitch.onNext(true)
+        if (!airlineTicketDataOverride)
+            airlineTicketObservableSwitch.onNext(true)
         proximiFlowableSubject.onNext(true)
         orientationFlowableSubject.onNext(true)
         needleDirectionObservableSubject.onNext(true)
@@ -283,7 +284,9 @@ class DefaultActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        airlineTicketObservableSwitch.onNext(false)
+
+        if (!airlineTicketDataOverride)
+            airlineTicketObservableSwitch.onNext(false)
         proximiFlowableSubject.onNext(false)
         orientationFlowableSubject.onNext(false)
         needleDirectionObservableSubject.onNext(false)
@@ -413,7 +416,15 @@ class DefaultActivity : AppCompatActivity() {
     }
 
     private fun processSecurityBeacon(proximiBeacon: ProximiioBLEDevice?) {
+        airlineTicketDataOverride = true
+        airlineTicketObservableSwitch.onNext(false)
+        val app = applicationContext as TomoApplication
+        val securityBeacon = app.apiBeacons[proximiBeacon?.name]
 
+        app.ticket?.boardingTime  = securityBeacon?.boardingTime
+        app.ticket?.departureTime = securityBeacon?.departureTime
+
+        updateTicketData(app.ticket!!)
     }
 
     private fun processGateChangeBeacon(proximiBeacon: ProximiioBLEDevice?) {
