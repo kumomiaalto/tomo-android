@@ -23,7 +23,6 @@ class TomoApplication : MultiDexApplication() {
     val apiBeaconRoutes: HashMap<String, List<String>> = HashMap()
     var currentBeaconRoute: List<String>? = null
     val seenBeacons: HashMap<String?, DateTime> = HashMap()
-    var startGeofence: Geofence? = null
     var ticket: AirlineTicket? = null
     val currentPosition: HashMap<String, Double?> = hashMapOf("lat" to null, "lon" to null)
     val destinationPosition: HashMap<String, Double?> = hashMapOf("lat" to null, "lon" to null)

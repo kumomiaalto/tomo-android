@@ -136,66 +136,65 @@ class DefaultActivity : AppCompatActivity() {
         orientationFlowableSubject
                 .switchMap { if(it) orientationFlowable else Flowable.never() }
                 .subscribe {
-                    if (app.startGeofence != null) {
-                        if (it.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)) {
-                            app.acceleroWindow0.addValue(it.values[0].toDouble())
-                            app.acceleroWindow1.addValue(it.values[1].toDouble())
-                            app.acceleroWindow2.addValue(it.values[2].toDouble())
+                    if (it.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)) {
+                        app.acceleroWindow0.addValue(it.values[0].toDouble())
+                        app.acceleroWindow1.addValue(it.values[1].toDouble())
+                        app.acceleroWindow2.addValue(it.values[2].toDouble())
 
-                            app.accelerometerReading[0] = app.acceleroWindow0.mean.toFloat()
-                            app.accelerometerReading[1] = app.acceleroWindow1.mean.toFloat()
-                            app.accelerometerReading[2] = app.acceleroWindow2.mean.toFloat()
-                        }
+                        app.accelerometerReading[0] = app.acceleroWindow0.mean.toFloat()
+                        app.accelerometerReading[1] = app.acceleroWindow1.mean.toFloat()
+                        app.accelerometerReading[2] = app.acceleroWindow2.mean.toFloat()
+                    }
 
-                        if (it.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)) {
-                            app.magnetoWindow0.addValue(it.values[0].toDouble())
-                            app.magnetoWindow1.addValue(it.values[1].toDouble())
-                            app.magnetoWindow2.addValue(it.values[2].toDouble())
+                    if (it.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)) {
+                        app.magnetoWindow0.addValue(it.values[0].toDouble())
+                        app.magnetoWindow1.addValue(it.values[1].toDouble())
+                        app.magnetoWindow2.addValue(it.values[2].toDouble())
 
-                            app.magnetometerReading[0] = app.magnetoWindow0.mean.toFloat()
-                            app.magnetometerReading[1] = app.magnetoWindow1.mean.toFloat()
-                            app.magnetometerReading[2] = app.magnetoWindow2.mean.toFloat()
-                        }
+                        app.magnetometerReading[0] = app.magnetoWindow0.mean.toFloat()
+                        app.magnetometerReading[1] = app.magnetoWindow1.mean.toFloat()
+                        app.magnetometerReading[2] = app.magnetoWindow2.mean.toFloat()
+                    }
 
-                        //Todo Calculate Azimuth so that it is not affected by pitch and roll.
-                        //https://stackoverflow.com/questions/15649684/how-should-i-calculate-azimuth-pitch-orientation-when-my-android-device-isnt
+                    //Todo Calculate Azimuth so that it is not affected by pitch and roll.
+                    //https://stackoverflow.com/questions/15649684/how-should-i-calculate-azimuth-pitch-orientation-when-my-android-device-isnt
 
-                        SensorManager.getRotationMatrix(app.rotationMatrix, null, app.accelerometerReading, app.magnetometerReading)
+                    SensorManager.getRotationMatrix(app.rotationMatrix, null, app.accelerometerReading, app.magnetometerReading)
 
-                        // In orientation angles calculated difference between magnetic north and device current orientation
-                        // is first element
-                        SensorManager.getOrientation(app.rotationMatrix, app.orientationAngles)
-                        var azimuth = RadiansToDegrees.convert(app.orientationAngles[0].toDouble())
-                        azimuth = (azimuth + 360) % 360
+                    // In orientation angles calculated difference between magnetic north and device current orientation
+                    // is first element
+                    SensorManager.getOrientation(app.rotationMatrix, app.orientationAngles)
+                    var azimuth = RadiansToDegrees.convert(app.orientationAngles[0].toDouble())
+                    azimuth = (azimuth + 360) % 360
 
-                        val currentLocationObj     = Location("current")
-                        val destinationLocationObj = Location("destination")
+                    val currentLocationObj     = Location("current")
+                    val destinationLocationObj = Location("destination")
 
-                        if (app.currentPosition["lat"] != null) {
-                            currentLocationObj.latitude = app.currentPosition["lat"]!!
-                            currentLocationObj.longitude = app.currentPosition["lon"]!!
-                        } else {
-                            currentLocationObj.latitude = app.bootstrapOrigin["lat"]!!
-                            currentLocationObj.longitude = app.bootstrapOrigin["lon"]!!
-                        }
+                    if (app.currentPosition["lat"] != null) {
+                        currentLocationObj.latitude = app.currentPosition["lat"]!!
+                        currentLocationObj.longitude = app.currentPosition["lon"]!!
+                    } else {
+                        currentLocationObj.latitude = app.bootstrapOrigin["lat"]!!
+                        currentLocationObj.longitude = app.bootstrapOrigin["lon"]!!
+                    }
 
-                        if (app.destinationPosition["lat"] != null) {
-                            destinationLocationObj.latitude = app.destinationPosition["lat"]!!
-                            destinationLocationObj.longitude = app.destinationPosition["lon"]!!
-                        } else {
-                            destinationLocationObj.latitude = app.bootstrapDestination["lat"]!!
-                            destinationLocationObj.longitude = app.bootstrapDestination["lon"]!!
-                        }
+                    if (app.destinationPosition["lat"] != null) {
+                        destinationLocationObj.latitude = app.destinationPosition["lat"]!!
+                        destinationLocationObj.longitude = app.destinationPosition["lon"]!!
+                    } else {
+                        destinationLocationObj.latitude = app.bootstrapDestination["lat"]!!
+                        destinationLocationObj.longitude = app.bootstrapDestination["lon"]!!
+                    }
 
 //                        val geoField = GeomagneticField(currentLocationObj.latitude.toFloat(),
 //                                currentLocationObj.longitude.toFloat(), currentLocationObj.altitude.toFloat(),
 //                                System.currentTimeMillis())
 
-                        Log.i(DefaultActivity.TAG, "Azimuth - $azimuth")
+                    Log.i(DefaultActivity.TAG, "Azimuth - $azimuth")
 
-                        // this is angle for a straight between current pos to destination pos w.r.t north pole line from
-                        // current position
-                        val bearingTo = currentLocationObj.bearingTo(destinationLocationObj)
+                    // this is angle for a straight between current pos to destination pos w.r.t north pole line from
+                    // current position
+                    val bearingTo = currentLocationObj.bearingTo(destinationLocationObj)
 
 //                         if (bearingTo < 0)
 //                             bearingTo += 360
@@ -203,8 +202,7 @@ class DefaultActivity : AppCompatActivity() {
 //                        if (rotateAngle < 0)
 //                            rotateAngle += 360
 
-                        app.rotateAngle = azimuth - bearingTo
-                    }
+                    app.rotateAngle = azimuth - bearingTo
                 }
 
         needleDirectionObservableSubject
