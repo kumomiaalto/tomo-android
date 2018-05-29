@@ -308,11 +308,14 @@ class DefaultActivity : AppCompatActivity() {
         time.text = currentTime.toString("HH:mm")
     }
 
+    // Current position derived from proximi sdk
     private fun updateCurrentPosition(proximiLocation: ProximiLocation?) {
+        // comment the method body to disable feature
         val app = applicationContext as TomoApplication
         app.currentPosition["lat"] = proximiLocation?.lat
         app.currentPosition["lon"] = proximiLocation?.lon
         currentLocationFromProximi = true
+        Log.i(TAG, "proximi position coming")
     }
 
     private fun processNotificationBeacon(proximiBeacon: ProximiioBLEDevice?) {
@@ -374,7 +377,7 @@ class DefaultActivity : AppCompatActivity() {
                 setSmallNotificationData(apiBeacon)
                 toggleSmallNotificationBoxElements(true)
                 notificationLock = true
-                vibrator?.vibrate(3000)
+                vibrator.vibrate(3000)
 
                 // Play sound
                 mediaPlayer = MediaPlayer.create(this, R.raw.small_sound)
@@ -403,13 +406,14 @@ class DefaultActivity : AppCompatActivity() {
         }
 
         // TODO: Need to handle case when next_beacon is null - that is at Gate. (SUJITH: We can have you have reached message and Icon.)
-        // TODO: Hide needle, show text box - you have reached
+        // TODO: Hide needle, show text box - you have reached - high priority
         val nextBeacon = app.apiBeacons[apiBeacon?.nextBeacon]
+
         app.destinationPosition["lat"]  = nextBeacon?.latitude?.toDouble()
         app.destinationPosition["lon"] = nextBeacon?.longitude?.toDouble()
 
         // Set time to gate from beacon data
-        // Todo: toggle between beacon text and time to gate in animation
+        // Todo: toggle between beacon text and time to gate in animation - high proirity
         timeToGate.text = "${apiBeacon?.text} min to gate"
     }
 

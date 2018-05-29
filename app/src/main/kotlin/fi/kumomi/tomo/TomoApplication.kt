@@ -12,6 +12,7 @@ import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics
 import org.joda.time.DateTime
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 /**
@@ -22,6 +23,7 @@ class TomoApplication : MultiDexApplication() {
     val apiBeacons: HashMap<String, Beacon> = HashMap()
     val apiBeaconRoutes: HashMap<String, List<String>> = HashMap()
     var currentBeaconRoute: List<String>? = null
+    var currentIndexInBeaconRoute = 0
     val seenBeacons: HashMap<String?, DateTime> = HashMap()
     var ticket: AirlineTicket? = null
     val currentPosition: HashMap<String, Double?> = hashMapOf("lat" to null, "lon" to null)
