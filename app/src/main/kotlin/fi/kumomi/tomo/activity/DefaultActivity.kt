@@ -56,7 +56,8 @@ class DefaultActivity : AppCompatActivity() {
     private var notificationLock = false
     private var airlineTicketDataOverride = false
     private var mode = "big_notification" //default, small_notification or big_notification
-    private var mediaPlayer = MediaPlayer()
+    private var bigNotificationMediaPlayer: MediaPlayer? = null
+    private var smallNotificationMediaPlayer: MediaPlayer? = null
     private var currentLocationFromProximi = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -246,7 +247,8 @@ class DefaultActivity : AppCompatActivity() {
     }
 
     fun updateView(view: View) {
-        mediaPlayer.stop()
+        bigNotificationMediaPlayer?.stop()
+        smallNotificationMediaPlayer?.stop()
         button.clearAnimation()
 
         when (mode) {
@@ -353,13 +355,13 @@ class DefaultActivity : AppCompatActivity() {
                     setBigNotificationData(apiBeacon)
 
                     toggleBigNotificationBoxElements(true)
-                    vibrator?.vibrate(3000)
+                    vibrator.vibrate(3000)
 
                     // Play sound
-                    mediaPlayer = MediaPlayer.create(this, R.raw.big_sound)
-                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
-                    mediaPlayer.isLooping = true
-                    mediaPlayer.start()
+                    bigNotificationMediaPlayer = MediaPlayer.create(this, R.raw.big_sound)
+                    bigNotificationMediaPlayer?.setAudioStreamType(AudioManager.STREAM_MUSIC)
+                    bigNotificationMediaPlayer?.isLooping = true
+                    bigNotificationMediaPlayer?.start()
 
                     // Flash button
                     val animation = AlphaAnimation(1F, 0F)
@@ -380,10 +382,10 @@ class DefaultActivity : AppCompatActivity() {
                 vibrator.vibrate(3000)
 
                 // Play sound
-                mediaPlayer = MediaPlayer.create(this, R.raw.small_sound)
-                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
-                mediaPlayer.isLooping = true
-                mediaPlayer.start()
+                smallNotificationMediaPlayer = MediaPlayer.create(this, R.raw.small_sound)
+                smallNotificationMediaPlayer?.setAudioStreamType(AudioManager.STREAM_MUSIC)
+                smallNotificationMediaPlayer?.isLooping = true
+                smallNotificationMediaPlayer?.start()
 
                 // Flash button
                 val animation = AlphaAnimation(1F, 0F)
@@ -414,7 +416,7 @@ class DefaultActivity : AppCompatActivity() {
 
         // Set time to gate from beacon data
         // Todo: toggle between beacon text and time to gate in animation - high proirity
-        timeToGate.text = "${apiBeacon?.text} min to gate"
+        timeToGate.text = "${apiBeacon?.timeToGate} min to gate"
     }
 
     private fun processSecurityBeacon(proximiBeacon: ProximiioBLEDevice?) {
