@@ -61,12 +61,12 @@ class DefaultActivity : AppCompatActivity() {
 
     // Default time and navigation text before we see any navigation beacon
     private var timeToGateText: String? = "30"
-    private var navigationText: String? = "Sujith fill this up"
+    private var navigationText: String? = ""
     private var currentNavigationTextState = "time"
     private var navigationTextToggleHandler: Handler? = null
     private var navigationTextToggleRunnable: Runnable? = null
 
-    private var mode = "big_notification" //default, small_notification or big_notification
+    private var mode = "default" //default, small_notification or big_notification
     private var bigNotificationMediaPlayer: MediaPlayer? = null
     private var smallNotificationMediaPlayer: MediaPlayer? = null
 
@@ -230,7 +230,7 @@ class DefaultActivity : AppCompatActivity() {
 //                    Log.i(TAG, correctedDirection.toString())
 
                     // Update only on angle difference of more than x from previous angle
-                    if (abs(app.prevRotateAngle - correctedDirection) > 2) {
+                    if (abs(app.prevRotateAngle - correctedDirection) > 5) {
                         // Handling animation to not jump at 360 to 0 angle boundary
                         val an: RotateAnimation = if (app.prevRotateAngle > 330 && correctedDirection < 30) {
                             RotateAnimation((app.prevRotateAngle - 360).toFloat(), correctedDirection.toFloat(),
@@ -363,11 +363,11 @@ class DefaultActivity : AppCompatActivity() {
     // Current position derived from proximi sdk
     private fun updateCurrentPosition(proximiLocation: ProximiLocation?) {
         // comment the method body to disable feature
-        val app = applicationContext as TomoApplication
-        app.currentPosition["lat"] = proximiLocation?.lat
-        app.currentPosition["lon"] = proximiLocation?.lon
-        currentLocationFromProximi = true
-        Log.i(TAG, "proximi position coming")
+      //  val app = applicationContext as TomoApplication
+      //  app.currentPosition["lat"] = proximiLocation?.lat
+      //  app.currentPosition["lon"] = proximiLocation?.lon
+      //  currentLocationFromProximi = true
+      //  Log.i(TAG, "proximi position coming")
     }
 
     private fun processNotificationBeacon(proximiBeacon: ProximiioBLEDevice?) {
