@@ -52,19 +52,23 @@ class DefaultActivity : AppCompatActivity() {
     private val proximiFlowableSubject = PublishProcessor.create<Boolean>()
     private val needleDirectionObservableSubject = PublishSubject.create<Boolean>()
     private val orientationFlowableSubject = PublishProcessor.create<Boolean>()
+
     private var proximiApi: ProximiioAPI? = null
     private var notificationLock = false
     private var airlineTicketDataOverride = false
+    private var currentLocationFromProximi = false
+    private var reachedGate = false
+
+    // Default time and navigation text before we see any navigation beacon
+    private var timeToGateText: String? = "30"
+    private var navigationText: String? = "Sujith fill this up"
+    private var currentNavigationTextState = "time"
+    private var navigationTextToggleHandler: Handler? = null
+    private var navigationTextToggleRunnable: Runnable? = null
+
     private var mode = "big_notification" //default, small_notification or big_notification
     private var bigNotificationMediaPlayer: MediaPlayer? = null
     private var smallNotificationMediaPlayer: MediaPlayer? = null
-    private var currentLocationFromProximi = false
-    private var reachedGate = false
-    private var timeToGateText: String? = "30"
-    private var navigationText: String? = "Sujith fill this up"
-    private var currentNavigationTextData = "time"
-    private var navigationTextToggleHandler: Handler? = null
-    private var navigationTextToggleRunnable: Runnable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -253,12 +257,13 @@ class DefaultActivity : AppCompatActivity() {
                     }
                 }
 
-        // Code fades in and fades out toggling navigation text
+        // Code for fade in and fade out toggling navigation text
         navigationTextToggleHandler = Handler()
         navigationTextToggleRunnable = object: Runnable {
             override fun run() {
                 val fadeIn = AlphaAnimation(0.0f, 1.0f)
                 val fadeOut = AlphaAnimation(1.0f, 0.0f)
+                // duration of fade in fade out animation only
                 fadeOut.duration = 500
                 fadeIn.duration  = 500
 
@@ -266,12 +271,12 @@ class DefaultActivity : AppCompatActivity() {
 
                 fadeOut.setAnimationListener(object : Animation.AnimationListener {
                     override fun onAnimationEnd(animation: Animation?) {
-                        if (currentNavigationTextData == "time") {
+                        if (currentNavigationTextState == "time") {
                             timeToGate.text = navigationText
-                            currentNavigationTextData = "text"
+                            currentNavigationTextState = "text"
                         } else {
                             timeToGate.text = "$timeToGateText min to gate"
-                            currentNavigationTextData = "time"
+                            currentNavigationTextState = "time"
                         }
 
                         timeToGate.startAnimation(fadeIn)
@@ -281,6 +286,7 @@ class DefaultActivity : AppCompatActivity() {
                     override fun onAnimationStart(animation: Animation?) = Unit
                 })
 
+                // duration text in on screen before toggling out for other text
                 navigationTextToggleHandler?.postDelayed(this, 5000)
             }
         }
@@ -288,26 +294,27 @@ class DefaultActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        toggleTicketBoxElements(true)
 
+        toggleTicketBoxElements(true)
         if (!airlineTicketDataOverride)
             airlineTicketObservableSwitch.onNext(true)
         proximiFlowableSubject.onNext(true)
         orientationFlowableSubject.onNext(true)
         needleDirectionObservableSubject.onNext(true)
 
-        navigationTextToggleHandler?.post(navigationTextToggleRunnable)
+        if (!reachedGate)
+            navigationTextToggleHandler?.post(navigationTextToggleRunnable)
     }
 
     override fun onPause() {
         super.onPause()
-        navigationTextToggleHandler?.removeCallbacks(navigationTextToggleRunnable)
 
         if (!airlineTicketDataOverride)
             airlineTicketObservableSwitch.onNext(false)
         proximiFlowableSubject.onNext(false)
         orientationFlowableSubject.onNext(false)
         needleDirectionObservableSubject.onNext(false)
+        navigationTextToggleHandler?.removeCallbacks(navigationTextToggleRunnable)
     }
 
     private fun updateTicketData(ticket: AirlineTicket) {
@@ -455,17 +462,15 @@ class DefaultActivity : AppCompatActivity() {
         // When reached gate hide needle show "you have reached"
         if (nextBeacon == null) {
             reachedGate = true
+            navigationTextToggleHandler?.removeCallbacks(navigationTextToggleRunnable)
             reachedText.visibility = View.VISIBLE
             needle.visibility = View.INVISIBLE
+            timeToGate.visibility = View.INVISIBLE
 
             app.destinationPosition["lat"] = apiBeacon?.latitude?.toDouble()
             app.destinationPosition["lon"] = apiBeacon?.longitude?.toDouble()
         } else {
-            reachedGate = false
-            reachedText.visibility = View.INVISIBLE
-            needle.visibility = View.VISIBLE
-
-            app.destinationPosition["lat"]  = nextBeacon.latitude?.toDouble()
+            app.destinationPosition["lat"] = nextBeacon.latitude?.toDouble()
             app.destinationPosition["lon"] = nextBeacon.longitude?.toDouble()
         }
 
