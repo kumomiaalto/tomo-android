@@ -1,13 +1,10 @@
 package fi.kumomi.tomo
 
 import android.support.multidex.MultiDexApplication
-import android.util.Log
 import fi.kumomi.tomo.model.AirlineTicket
 import fi.kumomi.tomo.model.Beacon
-import fi.kumomi.tomo.model.Geofence
 import fi.kumomi.tomo.observable.BeaconRoutesObservable
 import fi.kumomi.tomo.observable.BeaconsObservable
-import fi.kumomi.tomo.observable.GeofencesObservable
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics
@@ -21,9 +18,9 @@ import java.util.concurrent.TimeUnit
  */
 class TomoApplication : MultiDexApplication() {
     val apiBeacons: HashMap<String, Beacon> = HashMap()
-    val apiBeaconRoutes: HashMap<String, List<String>> = HashMap()
-    var currentBeaconRoute: List<String>? = null
-    var currentIndexInBeaconRoute = 0
+    val apiRoutes: HashMap<String, List<String>> = HashMap()
+    var currentRoute: List<String>? = null
+    var currentIndexInRoute: Int? = 0
     val seenBeacons: HashMap<String?, DateTime> = HashMap()
     var ticket: AirlineTicket? = null
     val currentPosition: HashMap<String, Double?> = hashMapOf("lat" to null, "lon" to null)
@@ -71,10 +68,10 @@ class TomoApplication : MultiDexApplication() {
                 .retryWhen { it.flatMap { Observable.timer(2, TimeUnit.SECONDS) } }
                 .subscribe {
                     for (beaconRoute in it) {
-                        apiBeaconRoutes[beaconRoute.name] = beaconRoute.beacons
+                        apiRoutes[beaconRoute.name] = beaconRoute.beacons
                     }
 
-                    currentBeaconRoute = apiBeaconRoutes["default"]
+                    currentRoute = apiRoutes["default"]
                 }
     }
 

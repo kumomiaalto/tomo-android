@@ -139,7 +139,6 @@ class DefaultActivity : AppCompatActivity() {
                         if (app.apiBeacons[it.beacon?.name]?.beaconType == "security") processSecurityBeacon(it.beacon)
 
                         // gate change beacon processing
-                        // Todo If beacon type = Gate change, Override all other navigation and update origin and destination, Lets discuss this.
                         if (app.apiBeacons[it.beacon?.name]?.beaconType == "gate_change") processGateChangeBeacon(it.beacon)
                     }
                 }
@@ -269,7 +268,7 @@ class DefaultActivity : AppCompatActivity() {
 
                 timeToGate.startAnimation(fadeOut)
 
-                fadeOut.setAnimationListener(object : Animation.AnimationListener {
+                fadeOut.setAnimationListener(object: Animation.AnimationListener {
                     override fun onAnimationEnd(animation: Animation?) {
                         if (currentNavigationTextState == "time") {
                             timeToGate.text = navigationText
@@ -450,14 +449,21 @@ class DefaultActivity : AppCompatActivity() {
 
     private fun processNavigationBeacon(proximiBeacon: ProximiioBLEDevice?) {
         val app = applicationContext as TomoApplication
-        val apiBeacon = app.apiBeacons[proximiBeacon?.name]
+        val currentBeaconData = app.apiBeacons[proximiBeacon?.name]
+        val currentRoute = app.currentRoute
+        var nextBeacon: Beacon? = null
 
         if (!currentLocationFromProximi) {
-            app.currentPosition["lat"] = apiBeacon?.latitude?.toDouble()
-            app.currentPosition["lon"] = apiBeacon?.longitude?.toDouble()
+            app.currentPosition["lat"] = currentBeaconData?.latitude?.toDouble()
+            app.currentPosition["lon"] = currentBeaconData?.longitude?.toDouble()
         }
 
-        val nextBeacon = app.apiBeacons[apiBeacon?.nextBeacon]
+        val indexOfCurrentBeacon = currentRoute?.indexOf(currentBeaconData?.name)
+        app.currentIndexInRoute = indexOfCurrentBeacon
+
+        if (indexOfCurrentBeacon!! < currentRoute.size - 1) {
+            nextBeacon = app.apiBeacons[currentRoute[indexOfCurrentBeacon + 1]]
+        }
 
         // When reached gate hide needle show "you have reached"
         if (nextBeacon == null) {
@@ -467,15 +473,15 @@ class DefaultActivity : AppCompatActivity() {
             needle.visibility = View.INVISIBLE
             timeToGate.visibility = View.INVISIBLE
 
-            app.destinationPosition["lat"] = apiBeacon?.latitude?.toDouble()
-            app.destinationPosition["lon"] = apiBeacon?.longitude?.toDouble()
+            app.destinationPosition["lat"] = currentBeaconData?.latitude?.toDouble()
+            app.destinationPosition["lon"] = currentBeaconData?.longitude?.toDouble()
         } else {
             app.destinationPosition["lat"] = nextBeacon.latitude?.toDouble()
             app.destinationPosition["lon"] = nextBeacon.longitude?.toDouble()
         }
 
-        timeToGateText = apiBeacon?.timeToGate
-        navigationText = apiBeacon?.text
+        timeToGateText = currentBeaconData?.timeToGate
+        navigationText = currentBeaconData?.text
     }
 
     private fun processSecurityBeacon(proximiBeacon: ProximiioBLEDevice?) {
@@ -490,8 +496,20 @@ class DefaultActivity : AppCompatActivity() {
         updateTicketData(app.ticket!!)
     }
 
+    /**
+     * When gate change beacon is seen
+     * - update route to new route from that beacon
+     * - set destination to first beacon in that route
+     */
     private fun processGateChangeBeacon(proximiBeacon: ProximiioBLEDevice?) {
+        val app = applicationContext as TomoApplication
+        val gateChangeBeacon = app.apiBeacons[proximiBeacon?.name]
+        app.currentRoute = app.apiRoutes[gateChangeBeacon?.route]
+        app.currentIndexInRoute = 0
 
+        val newDestinationBeacon = app.apiBeacons[app.currentRoute!![0]]
+        app.destinationPosition["lat"] = newDestinationBeacon?.latitude?.toDouble()
+        app.destinationPosition["lon"] = newDestinationBeacon?.longitude?.toDouble()
     }
 
     private fun toggleTicketBoxElements(visible: Boolean) {

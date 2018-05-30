@@ -2,7 +2,7 @@ package fi.kumomi.tomo.util
 
 import fi.kumomi.tomo.model.AirlineTicket
 import fi.kumomi.tomo.model.Beacon
-import fi.kumomi.tomo.model.BeaconRoute
+import fi.kumomi.tomo.model.Route
 import io.reactivex.Observable
 import retrofit2.http.GET
 
@@ -15,5 +15,5 @@ interface TomoApi {
     fun getBeacons(): Observable<List<Beacon>>
 
     @GET("/beaconRoutes/show")
-    fun getBeaconRoutes(): Observable<List<BeaconRoute>>
+    fun getBeaconRoutes(): Observable<List<Route>>
 }
