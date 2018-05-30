@@ -60,6 +60,11 @@ class DefaultActivity : AppCompatActivity() {
     private var smallNotificationMediaPlayer: MediaPlayer? = null
     private var currentLocationFromProximi = false
     private var reachedGate = false
+    private var timeToGateText: String? = "30"
+    private var navigationText: String? = "Sujith fill this up"
+    private var currentNavigationTextData = "time"
+    private var navigationTextToggleHandler: Handler? = null
+    private var navigationTextToggleRunnable: Runnable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -192,7 +197,7 @@ class DefaultActivity : AppCompatActivity() {
 //                                currentLocationObj.longitude.toFloat(), currentLocationObj.altitude.toFloat(),
 //                                System.currentTimeMillis())
 
-                    Log.i(DefaultActivity.TAG, "Azimuth - $azimuth")
+//                    Log.i(DefaultActivity.TAG, "Azimuth - $azimuth")
 
                     // this is angle for a straight between current pos to destination pos w.r.t north pole line from
                     // current position
@@ -218,7 +223,7 @@ class DefaultActivity : AppCompatActivity() {
 
                     correctedDirection = 360 - correctedDirection
 
-                    Log.i(TAG, correctedDirection.toString())
+//                    Log.i(TAG, correctedDirection.toString())
 
                     // Update only on angle difference of more than x from previous angle
                     if (abs(app.prevRotateAngle - correctedDirection) > 2) {
@@ -247,6 +252,80 @@ class DefaultActivity : AppCompatActivity() {
                         app.prevRotateAngle = correctedDirection
                     }
                 }
+
+        // Code fades in and fades out toggling navigation text
+        navigationTextToggleHandler = Handler()
+        navigationTextToggleRunnable = object: Runnable {
+            override fun run() {
+                val fadeIn = AlphaAnimation(0.0f, 1.0f)
+                val fadeOut = AlphaAnimation(1.0f, 0.0f)
+                fadeOut.duration = 500
+                fadeIn.duration  = 500
+
+                timeToGate.startAnimation(fadeOut)
+
+                fadeOut.setAnimationListener(object : Animation.AnimationListener {
+                    override fun onAnimationEnd(animation: Animation?) {
+                        if (currentNavigationTextData == "time") {
+                            timeToGate.text = navigationText
+                            currentNavigationTextData = "text"
+                        } else {
+                            timeToGate.text = "$timeToGateText min to gate"
+                            currentNavigationTextData = "time"
+                        }
+
+                        timeToGate.startAnimation(fadeIn)
+                    }
+
+                    override fun onAnimationRepeat(animation: Animation?) = Unit
+                    override fun onAnimationStart(animation: Animation?) = Unit
+                })
+
+                navigationTextToggleHandler?.postDelayed(this, 5000)
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        toggleTicketBoxElements(true)
+
+        if (!airlineTicketDataOverride)
+            airlineTicketObservableSwitch.onNext(true)
+        proximiFlowableSubject.onNext(true)
+        orientationFlowableSubject.onNext(true)
+        needleDirectionObservableSubject.onNext(true)
+
+        navigationTextToggleHandler?.post(navigationTextToggleRunnable)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        navigationTextToggleHandler?.removeCallbacks(navigationTextToggleRunnable)
+
+        if (!airlineTicketDataOverride)
+            airlineTicketObservableSwitch.onNext(false)
+        proximiFlowableSubject.onNext(false)
+        orientationFlowableSubject.onNext(false)
+        needleDirectionObservableSubject.onNext(false)
+    }
+
+    private fun updateTicketData(ticket: AirlineTicket) {
+        val currentTime = LocalDateTime().toDateTime()
+        val boardingDateTime = ISODateTimeFormat.dateTimeParser()
+                .parseDateTime(ticket.boardingTime)
+                .withZone(DateTimeZone.forTimeZone(TimeZone.getDefault()))
+        val flightDateTime = ISODateTimeFormat.dateTimeParser()
+                .parseDateTime(ticket.departureTime)
+                .withZone(DateTimeZone.forTimeZone(TimeZone.getDefault()))
+        val timeToBoarding = Minutes.minutesBetween(currentTime, boardingDateTime).minutes
+
+        flightTime.text = flightDateTime.toString("HH:mm")
+        boardingTime.text = boardingDateTime.toString("HH:mm")
+        timeUntilBoarding.text = "$timeToBoarding\nmin"
+        gate.text = ticket.gate
+        flightNumber.text = ticket.flightNumber
+        time.text = currentTime.toString("HH:mm")
     }
 
     fun updateView(view: View) {
@@ -272,45 +351,6 @@ class DefaultActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        toggleTicketBoxElements(true)
-
-        if (!airlineTicketDataOverride)
-            airlineTicketObservableSwitch.onNext(true)
-        proximiFlowableSubject.onNext(true)
-        orientationFlowableSubject.onNext(true)
-        needleDirectionObservableSubject.onNext(true)
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        if (!airlineTicketDataOverride)
-            airlineTicketObservableSwitch.onNext(false)
-        proximiFlowableSubject.onNext(false)
-        orientationFlowableSubject.onNext(false)
-        needleDirectionObservableSubject.onNext(false)
-    }
-
-    private fun updateTicketData(ticket: AirlineTicket) {
-        val currentTime = LocalDateTime().toDateTime()
-        val boardingDateTime = ISODateTimeFormat.dateTimeParser()
-                .parseDateTime(ticket.boardingTime)
-                .withZone(DateTimeZone.forTimeZone(TimeZone.getDefault()))
-        val flightDateTime = ISODateTimeFormat.dateTimeParser()
-                .parseDateTime(ticket.departureTime)
-                .withZone(DateTimeZone.forTimeZone(TimeZone.getDefault()))
-        val timeToBoarding = Minutes.minutesBetween(currentTime, boardingDateTime).minutes
-
-        flightTime.text = flightDateTime.toString("HH:mm")
-        boardingTime.text = boardingDateTime.toString("HH:mm")
-        timeUntilBoarding.text = "$timeToBoarding\nmin"
-        gate.text = ticket.gate
-        flightNumber.text = ticket.flightNumber
-        time.text = currentTime.toString("HH:mm")
     }
 
     // Current position derived from proximi sdk
@@ -429,9 +469,8 @@ class DefaultActivity : AppCompatActivity() {
             app.destinationPosition["lon"] = nextBeacon.longitude?.toDouble()
         }
 
-        // Set time to gate from beacon data
-        // Todo: toggle between beacon text and time to gate in animation - high proirity
-        timeToGate.text = "${apiBeacon?.timeToGate} min to gate"
+        timeToGateText = apiBeacon?.timeToGate
+        navigationText = apiBeacon?.text
     }
 
     private fun processSecurityBeacon(proximiBeacon: ProximiioBLEDevice?) {
