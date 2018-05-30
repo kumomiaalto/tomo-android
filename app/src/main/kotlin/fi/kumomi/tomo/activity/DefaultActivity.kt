@@ -126,21 +126,20 @@ class DefaultActivity : AppCompatActivity() {
 
                     // All beacons processing
                     if (it.eventType == ProximiEvent.BEACON_FOUND_EVENT && app.apiBeacons.containsKey(it.beacon?.name)) {
+                        val apiBeacon = app.apiBeacons[it.beacon?.name]
 
                         // notifications beacon processing - when any new notification type is added, code goes here
-                        if ((app.apiBeacons[it.beacon?.name]?.beaconType == "big_notification" ||
-                                app.apiBeacons[it.beacon?.name]?.beaconType == "small_notification") &&
-                                !notificationLock) processNotificationBeacon(it.beacon)
+                        if ((apiBeacon?.beaconType == "big_notification" || apiBeacon?.beaconType == "small_notification") &&
+                                !notificationLock) processNotificationBeacon(apiBeacon)
 
                         // navigation beacon processing
-                        if (app.apiBeacons[it.beacon?.name]?.beaconType == "navigation") processNavigationBeacon(it.beacon)
+                        if (apiBeacon?.beaconType == "navigation") processNavigationBeacon(apiBeacon)
 
                         // security beacon processing
-                        if (app.apiBeacons[it.beacon?.name]?.beaconType == "security") processSecurityBeacon(it.beacon)
+                        if (apiBeacon?.beaconType == "security") processSecurityBeacon(apiBeacon)
 
-                        // gate change beacon processing
-                        // Todo If beacon type = Gate change, Override all other navigation and update origin and destination, Lets discuss this.
-                        if (app.apiBeacons[it.beacon?.name]?.beaconType == "gate_change") processGateChangeBeacon(it.beacon)
+                        // gate change beacon processing - update gate number and stop polling ticket data
+                        if (apiBeacon?.beaconType == "gate_change") processGateChangeBeacon(apiBeacon)
                     }
                 }
 
@@ -370,13 +369,13 @@ class DefaultActivity : AppCompatActivity() {
       //  Log.i(TAG, "proximi position coming")
     }
 
-    private fun processNotificationBeacon(proximiBeacon: ProximiioBLEDevice?) {
+    private fun processNotificationBeacon(notificationBeacon: Beacon?) {
         var seenNotificationBeacon = false
         val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         val app = applicationContext as TomoApplication
 
-        if (app.seenBeacons.containsKey(proximiBeacon?.name)) {
-            val seenTime = app.seenBeacons[proximiBeacon?.name]
+        if (app.seenBeacons.containsKey(notificationBeacon?.name)) {
+            val seenTime = app.seenBeacons[notificationBeacon?.name]
             val currentTime = DateTime()
             val interval = Interval(seenTime, currentTime)
 
@@ -392,17 +391,15 @@ class DefaultActivity : AppCompatActivity() {
 
         if (!seenNotificationBeacon) {
             Log.i(TAG, "We have never seen this beacon until now - Storing ref")
-            app.seenBeacons[proximiBeacon?.name] = DateTime()
+            app.seenBeacons[notificationBeacon?.name] = DateTime()
 
-            val apiBeacon = app.apiBeacons[proximiBeacon?.name]
-
-            if (apiBeacon!!.beaconType == "big_notification") {
+            if (notificationBeacon!!.beaconType == "big_notification") {
                 mode = "big_notification"
                 notificationLock = true
 
                 // Showing Big Notification after 1 minute from beacon detect
                 Handler().postDelayed({
-                    setBigNotificationData(apiBeacon)
+                    setBigNotificationData(notificationBeacon)
 
                     toggleBigNotificationBoxElements(true)
                     vibrator.vibrate(3000)
@@ -424,9 +421,9 @@ class DefaultActivity : AppCompatActivity() {
             }
 
             //TODO Toggle needle and time to gate and gate
-            if (apiBeacon.beaconType == "small_notification") {
+            if (notificationBeacon.beaconType == "small_notification") {
                 mode = "small_notification"
-                setSmallNotificationData(apiBeacon)
+                setSmallNotificationData(notificationBeacon)
                 toggleSmallNotificationBoxElements(true)
                 notificationLock = true
                 vibrator.vibrate(3000)
@@ -448,16 +445,15 @@ class DefaultActivity : AppCompatActivity() {
         }
     }
 
-    private fun processNavigationBeacon(proximiBeacon: ProximiioBLEDevice?) {
+    private fun processNavigationBeacon(navigationBeacon: Beacon?) {
         val app = applicationContext as TomoApplication
-        val apiBeacon = app.apiBeacons[proximiBeacon?.name]
 
         if (!currentLocationFromProximi) {
-            app.currentPosition["lat"] = apiBeacon?.latitude?.toDouble()
-            app.currentPosition["lon"] = apiBeacon?.longitude?.toDouble()
+            app.currentPosition["lat"] = navigationBeacon?.latitude?.toDouble()
+            app.currentPosition["lon"] = navigationBeacon?.longitude?.toDouble()
         }
 
-        val nextBeacon = app.apiBeacons[apiBeacon?.nextBeacon]
+        val nextBeacon = app.apiBeacons[navigationBeacon?.nextBeacon]
 
         // When reached gate hide needle show "you have reached"
         if (nextBeacon == null) {
@@ -467,31 +463,34 @@ class DefaultActivity : AppCompatActivity() {
             needle.visibility = View.INVISIBLE
             timeToGate.visibility = View.INVISIBLE
 
-            app.destinationPosition["lat"] = apiBeacon?.latitude?.toDouble()
-            app.destinationPosition["lon"] = apiBeacon?.longitude?.toDouble()
+            app.destinationPosition["lat"] = navigationBeacon?.latitude?.toDouble()
+            app.destinationPosition["lon"] = navigationBeacon?.longitude?.toDouble()
         } else {
             app.destinationPosition["lat"] = nextBeacon.latitude?.toDouble()
             app.destinationPosition["lon"] = nextBeacon.longitude?.toDouble()
         }
 
-        timeToGateText = apiBeacon?.timeToGate
-        navigationText = apiBeacon?.text
+        timeToGateText = navigationBeacon?.timeToGate
+        navigationText = navigationBeacon?.text
     }
 
-    private fun processSecurityBeacon(proximiBeacon: ProximiioBLEDevice?) {
+    private fun processSecurityBeacon(securityBeacon: Beacon?) {
         airlineTicketDataOverride = true
         airlineTicketObservableSwitch.onNext(false)
         val app = applicationContext as TomoApplication
-        val securityBeacon = app.apiBeacons[proximiBeacon?.name]
 
         app.ticket?.boardingTime  = securityBeacon?.boardingTime
         app.ticket?.departureTime = securityBeacon?.departureTime
-
         updateTicketData(app.ticket!!)
     }
 
-    private fun processGateChangeBeacon(proximiBeacon: ProximiioBLEDevice?) {
+    private fun processGateChangeBeacon(gateChangeBeacon: Beacon?) {
+        airlineTicketDataOverride = true
+        airlineTicketObservableSwitch.onNext(false)
+        val app = applicationContext as TomoApplication
 
+        app.ticket?.gate = gateChangeBeacon?.gate
+        updateTicketData(app.ticket!!)
     }
 
     private fun toggleTicketBoxElements(visible: Boolean) {

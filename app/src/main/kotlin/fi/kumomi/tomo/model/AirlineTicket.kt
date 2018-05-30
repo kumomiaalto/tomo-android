@@ -16,7 +16,7 @@ data class AirlineTicket(
         @Json(name = "boarding_time") var boardingTime: String?,
         @Json(name = "departure_time") var departureTime: String?,
         @Json(name = "terminal") val terminal: String?,
-        @Json(name = "gate") val gate: String?,
+        @Json(name = "gate") var gate: String?,
         @Json(name = "gate_location") val gateLocation: String?,
         @Json(name = "security_time") val securityTime: String?,
         @Json(name = "immigration_time") val immigrationTime: String?

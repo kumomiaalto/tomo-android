@@ -13,6 +13,6 @@ data class Beacon(
         @Json(name = "next_beacon") val nextBeacon: String?,
         @Json(name = "boarding_time") val boardingTime: String?,
         @Json(name = "departure_time") val departureTime: String?,
-        @Json(name = "route") val route: String?
-
+        @Json(name = "route") val route: String?,
+        @Json(name = "gate") val gate: String?
 )
