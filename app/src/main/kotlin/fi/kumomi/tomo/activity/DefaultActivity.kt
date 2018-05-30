@@ -59,6 +59,7 @@ class DefaultActivity : AppCompatActivity() {
     private var bigNotificationMediaPlayer: MediaPlayer? = null
     private var smallNotificationMediaPlayer: MediaPlayer? = null
     private var currentLocationFromProximi = false
+    private var reachedGate = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -240,7 +241,9 @@ class DefaultActivity : AppCompatActivity() {
                         an.repeatCount = 0
                         an.fillAfter = true
 
-                        needle.startAnimation(an)
+                        if (!reachedGate)
+                            needle.startAnimation(an)
+
                         app.prevRotateAngle = correctedDirection
                     }
                 }
@@ -407,12 +410,24 @@ class DefaultActivity : AppCompatActivity() {
             app.currentPosition["lon"] = apiBeacon?.longitude?.toDouble()
         }
 
-        // TODO: Need to handle case when next_beacon is null - that is at Gate. (SUJITH: We can have you have reached message and Icon.)
-        // TODO: Hide needle, show text box - you have reached - high priority
         val nextBeacon = app.apiBeacons[apiBeacon?.nextBeacon]
 
-        app.destinationPosition["lat"]  = nextBeacon?.latitude?.toDouble()
-        app.destinationPosition["lon"] = nextBeacon?.longitude?.toDouble()
+        // When reached gate hide needle show "you have reached"
+        if (nextBeacon == null) {
+            reachedGate = true
+            reachedText.visibility = View.VISIBLE
+            needle.visibility = View.INVISIBLE
+
+            app.destinationPosition["lat"] = apiBeacon?.latitude?.toDouble()
+            app.destinationPosition["lon"] = apiBeacon?.longitude?.toDouble()
+        } else {
+            reachedGate = false
+            reachedText.visibility = View.INVISIBLE
+            needle.visibility = View.VISIBLE
+
+            app.destinationPosition["lat"]  = nextBeacon.latitude?.toDouble()
+            app.destinationPosition["lon"] = nextBeacon.longitude?.toDouble()
+        }
 
         // Set time to gate from beacon data
         // Todo: toggle between beacon text and time to gate in animation - high proirity

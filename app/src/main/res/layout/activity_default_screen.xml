@@ -62,13 +62,30 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="18dp"
-        android:visibility="visible"
         android:scaleType="center"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/circleView"
         app:layout_constraintEnd_toEndOf="@+id/circleView"
         app:layout_constraintStart_toStartOf="@+id/circleView"
         app:layout_constraintTop_toTopOf="@+id/circleView"
         app:srcCompat="@drawable/needle" />
+
+    <TextView
+        android:id="@+id/reachedText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="You have reached"
+        android:textColor="#0072DA"
+        android:textSize="22sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/needle"
+        app:layout_constraintEnd_toEndOf="@+id/needle"
+        app:layout_constraintStart_toStartOf="@+id/needle"
+        app:layout_constraintTop_toTopOf="@+id/needle" />
 
     <TextView
         android:id="@+id/timeToGate"
