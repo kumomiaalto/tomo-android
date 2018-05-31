@@ -32,7 +32,6 @@ import fi.kumomi.tomo.observable.AirlineTicketObservable
 import fi.kumomi.tomo.observable.NeedleDirectionObservable
 import fi.kumomi.tomo.util.RadiansToDegrees
 import io.proximi.proximiiolibrary.ProximiioAPI
-import io.proximi.proximiiolibrary.ProximiioBLEDevice
 import io.proximi.proximiiolibrary.ProximiioOptions
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -251,6 +250,8 @@ class DefaultActivity : AppCompatActivity() {
 
                         if (!reachedGate)
                             needle.startAnimation(an)
+                        else
+                            needle.visibility = View.INVISIBLE
 
                         app.prevRotateAngle = correctedDirection
                     }
