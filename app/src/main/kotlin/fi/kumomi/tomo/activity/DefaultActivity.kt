@@ -173,7 +173,12 @@ class DefaultActivity : AppCompatActivity() {
                     // In orientation angles calculated difference between magnetic north and device current orientation
                     // is first element
                     SensorManager.getOrientation(app.rotationMatrix, app.orientationAngles)
-                    var azimuth = RadiansToDegrees.convert(app.orientationAngles[0].toDouble())
+
+
+                    val r = app.rotationMatrix
+                    val newAzimuth = Math.atan((r[1] - r[3]).toDouble()/(r[0] + r[4]).toDouble())
+//                    var azimuth = RadiansToDegrees.convert(app.orientationAngles[0].toDouble())
+                    var azimuth = RadiansToDegrees.convert(newAzimuth)
                     azimuth = (azimuth + 360) % 360
 
                     val currentLocationObj     = Location("current")
@@ -199,7 +204,7 @@ class DefaultActivity : AppCompatActivity() {
 //                                currentLocationObj.longitude.toFloat(), currentLocationObj.altitude.toFloat(),
 //                                System.currentTimeMillis())
 
-//                    Log.i(DefaultActivity.TAG, "Azimuth - $azimuth")
+                    Log.i(DefaultActivity.TAG, "Azimuth - $azimuth")
 
                     // this is angle for a straight between current pos to destination pos w.r.t north pole line from
                     // current position
