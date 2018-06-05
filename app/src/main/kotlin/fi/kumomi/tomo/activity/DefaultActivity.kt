@@ -61,6 +61,7 @@ class DefaultActivity : AppCompatActivity() {
     // Default time and navigation text before we see any navigation beacon
     private var timeToGateText: String? = "30"
     private var navigationText: String? = ""
+    private var geofenceBearing: Double = 0F.toDouble()
     private var currentNavigationTextState = "time"
     private var navigationTextToggleHandler: Handler? = null
     private var navigationTextToggleRunnable: Runnable? = null
@@ -115,10 +116,30 @@ class DefaultActivity : AppCompatActivity() {
                     updateTicketData(it)
                 }
 
-        // Process proximi events - position and all beacons
+        // Process proximi events - position, geofences and all beacons
         proximiFlowableSubject
                 .switchMap { if(it) proximiFlowable else Flowable.never() }
                 .subscribe {
+
+                    if (it.eventType == ProximiEvent.GEOFENCE_ENTER_EVENT) {
+                        val geofenceMetadata = it.geofence?.metadata
+                        if (geofenceMetadata != null) {
+                            Log.i(TAG, "Geofence Enter! Time - ${geofenceMetadata["time"]} --- Tag --- ${geofenceMetadata["text"]} --- Bearing --- ${geofenceMetadata["bearing"]}")
+
+                            if (geofenceMetadata["tag"] == "gate") {
+                                reachedGate = true
+                                navigationTextToggleHandler?.removeCallbacks(navigationTextToggleRunnable)
+                                reachedText.visibility = View.VISIBLE
+                                needle.visibility = View.INVISIBLE
+                                timeToGate.visibility = View.INVISIBLE
+                            } else {
+                                timeToGateText = geofenceMetadata["time"] as String
+                                navigationText = geofenceMetadata["text"] as String
+                                geofenceBearing = (geofenceMetadata["bearing"] as String).toDouble()
+                            }
+                        }
+                    }
+
 
                     // Updating current position from proximi, and setting a flag that location is coming from proximi
                     if (it.eventType == ProximiEvent.POSITION_EVENT) updateCurrentPosition(it.location)
@@ -132,7 +153,7 @@ class DefaultActivity : AppCompatActivity() {
                                 !notificationLock) processNotificationBeacon(apiBeacon)
 
                         // navigation beacon processing
-                        if (apiBeacon?.beaconType == "navigation") processNavigationBeacon(apiBeacon)
+                        // if (apiBeacon?.beaconType == "navigation") processNavigationBeacon(apiBeacon)
 
                         // security beacon processing
                         if (apiBeacon?.beaconType == "security") processSecurityBeacon(apiBeacon)
@@ -176,24 +197,24 @@ class DefaultActivity : AppCompatActivity() {
                     var azimuth = RadiansToDegrees.convert(app.orientationAngles[0].toDouble())
                     azimuth = (azimuth + 360) % 360
 
-                    val currentLocationObj     = Location("current")
-                    val destinationLocationObj = Location("destination")
-
-                    if (app.currentPosition["lat"] != null) {
-                        currentLocationObj.latitude = app.currentPosition["lat"]!!
-                        currentLocationObj.longitude = app.currentPosition["lon"]!!
-                    } else {
-                        currentLocationObj.latitude = app.bootstrapOrigin["lat"]!!
-                        currentLocationObj.longitude = app.bootstrapOrigin["lon"]!!
-                    }
-
-                    if (app.destinationPosition["lat"] != null) {
-                        destinationLocationObj.latitude = app.destinationPosition["lat"]!!
-                        destinationLocationObj.longitude = app.destinationPosition["lon"]!!
-                    } else {
-                        destinationLocationObj.latitude = app.bootstrapDestination["lat"]!!
-                        destinationLocationObj.longitude = app.bootstrapDestination["lon"]!!
-                    }
+//                    val currentLocationObj     = Location("current")
+//                    val destinationLocationObj = Location("destination")
+//
+//                    if (app.currentPosition["lat"] != null) {
+//                        currentLocationObj.latitude = app.currentPosition["lat"]!!
+//                        currentLocationObj.longitude = app.currentPosition["lon"]!!
+//                    } else {
+//                        currentLocationObj.latitude = app.bootstrapOrigin["lat"]!!
+//                        currentLocationObj.longitude = app.bootstrapOrigin["lon"]!!
+//                    }
+//
+//                    if (app.destinationPosition["lat"] != null) {
+//                        destinationLocationObj.latitude = app.destinationPosition["lat"]!!
+//                        destinationLocationObj.longitude = app.destinationPosition["lon"]!!
+//                    } else {
+//                        destinationLocationObj.latitude = app.bootstrapDestination["lat"]!!
+//                        destinationLocationObj.longitude = app.bootstrapDestination["lon"]!!
+//                    }
 
 //                        val geoField = GeomagneticField(currentLocationObj.latitude.toFloat(),
 //                                currentLocationObj.longitude.toFloat(), currentLocationObj.altitude.toFloat(),
@@ -203,7 +224,7 @@ class DefaultActivity : AppCompatActivity() {
 
                     // this is angle for a straight between current pos to destination pos w.r.t north pole line from
                     // current position
-                    val bearingTo = currentLocationObj.bearingTo(destinationLocationObj)
+//                    val bearingTo = currentLocationObj.bearingTo(destinationLocationObj)
 
 //                         if (bearingTo < 0)
 //                             bearingTo += 360
@@ -211,7 +232,7 @@ class DefaultActivity : AppCompatActivity() {
 //                        if (rotateAngle < 0)
 //                            rotateAngle += 360
 
-                    app.rotateAngle = azimuth - bearingTo
+                    app.rotateAngle = azimuth - geofenceBearing
                 }
 
         needleDirectionObservableSubject
