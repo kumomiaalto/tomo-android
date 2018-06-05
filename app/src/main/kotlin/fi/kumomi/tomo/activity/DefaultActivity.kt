@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.hardware.Sensor
 import android.hardware.SensorManager
-import android.location.Location
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -32,6 +31,7 @@ import fi.kumomi.tomo.observable.AirlineTicketObservable
 import fi.kumomi.tomo.observable.NeedleDirectionObservable
 import fi.kumomi.tomo.util.RadiansToDegrees
 import io.proximi.proximiiolibrary.ProximiioAPI
+import io.proximi.proximiiolibrary.ProximiioGeofence
 import io.proximi.proximiiolibrary.ProximiioOptions
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -42,6 +42,7 @@ import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_default_screen.*
 import org.joda.time.*
 import org.joda.time.format.ISODateTimeFormat
+import org.json.JSONObject
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
@@ -116,51 +117,51 @@ class DefaultActivity : AppCompatActivity() {
                     updateTicketData(it)
                 }
 
-        // Process proximi events - position, geofences and all beacons
+        // Process proximi events - ONLY geofence now
         proximiFlowableSubject
                 .switchMap { if(it) proximiFlowable else Flowable.never() }
                 .subscribe {
 
                     if (it.eventType == ProximiEvent.GEOFENCE_ENTER_EVENT) {
                         val geofenceMetadata = it.geofence?.metadata
+
                         if (geofenceMetadata != null) {
                             Log.i(TAG, "Geofence Enter! Time - ${geofenceMetadata["time"]} --- Tag --- ${geofenceMetadata["text"]} --- Bearing --- ${geofenceMetadata["bearing"]}")
 
-                            if (geofenceMetadata["tag"] == "gate") {
-                                reachedGate = true
-                                navigationTextToggleHandler?.removeCallbacks(navigationTextToggleRunnable)
-                                reachedText.visibility = View.VISIBLE
-                                needle.visibility = View.INVISIBLE
-                                timeToGate.visibility = View.INVISIBLE
-                            } else {
-                                timeToGateText = geofenceMetadata["time"] as String
-                                navigationText = geofenceMetadata["text"] as String
-                                geofenceBearing = (geofenceMetadata["bearing"] as String).toDouble()
+                            processNavigationalGeofence(geofenceMetadata)
+
+                            when (geofenceMetadata["notification_type"]) {
+                                "security" -> processSecurityGeofence(geofenceMetadata)
+                                "big", "small" -> {
+                                    if (!notificationLock)
+                                        processNotificationGeofence(it.geofence)
+                                }
                             }
+
                         }
                     }
 
 
                     // Updating current position from proximi, and setting a flag that location is coming from proximi
-                    if (it.eventType == ProximiEvent.POSITION_EVENT) updateCurrentPosition(it.location)
+                    // if (it.eventType == ProximiEvent.POSITION_EVENT) updateCurrentPosition(it.location)
 
                     // All beacons processing
-                    if (it.eventType == ProximiEvent.BEACON_FOUND_EVENT && app.apiBeacons.containsKey(it.beacon?.name)) {
-                        val apiBeacon = app.apiBeacons[it.beacon?.name]
+                    // if (it.eventType == ProximiEvent.BEACON_FOUND_EVENT && app.apiBeacons.containsKey(it.beacon?.name)) {
+                        // val apiBeacon = app.apiBeacons[it.beacon?.name]
 
                         // notifications beacon processing - when any new notification type is added, code goes here
-                        if ((apiBeacon?.beaconType == "big_notification" || apiBeacon?.beaconType == "small_notification") &&
-                                !notificationLock) processNotificationBeacon(apiBeacon)
+                        // if ((apiBeacon?.beaconType == "big_notification" || apiBeacon?.beaconType == "small_notification") &&
+                        //        !notificationLock) processNotificationBeacon(apiBeacon)
 
                         // navigation beacon processing
                         // if (apiBeacon?.beaconType == "navigation") processNavigationBeacon(apiBeacon)
 
                         // security beacon processing
-                        if (apiBeacon?.beaconType == "security") processSecurityBeacon(apiBeacon)
+                        // if (apiBeacon?.beaconType == "security") processSecurityBeacon(apiBeacon)
 
                         // gate change beacon processing - update gate number and stop polling ticket data
-                        if (apiBeacon?.beaconType == "gate_change") processGateChangeBeacon(apiBeacon)
-                    }
+                        // if (apiBeacon?.beaconType == "gate_change") processGateChangeBeacon(apiBeacon)
+                    // }
                 }
 
         orientationFlowableSubject
@@ -467,6 +468,86 @@ class DefaultActivity : AppCompatActivity() {
         }
     }
 
+    private fun processNotificationGeofence(geofence: ProximiioGeofence?) {
+        var seenNotificationGeofence = false
+        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        val app = applicationContext as TomoApplication
+
+        if (app.seenGeofences.containsKey(geofence?.name)) {
+            val seenTime = app.seenBeacons[geofence?.name]
+            val currentTime = DateTime()
+            val interval = Interval(seenTime, currentTime)
+
+            Log.i(TAG, "This geofence was last seen at ${seenTime.toString()}")
+            Log.i(TAG, "Time since we saw this geofence ${interval.toDuration().standardMinutes}")
+
+            // compares minutes since when beacon was seen.
+            // to compare seconds use standardSeconds
+            if (interval.toDuration().standardSeconds < 120) {
+                seenNotificationGeofence = true
+            }
+        }
+
+        if (!seenNotificationGeofence) {
+            Log.i(TAG, "We have never seen this geofence until now - Storing ref")
+            app.seenGeofences[geofence?.name] = DateTime()
+
+            val geofenceMetadata = geofence?.metadata
+            val geofenceNotificationType = geofenceMetadata?.get("notification_type") as String
+
+            when (geofenceNotificationType) {
+                "big" -> {
+                    mode = "big_notification"
+                    notificationLock = true
+
+                    // Showing Big Notification after 1 minute from beacon detect
+                    Handler().postDelayed({
+                        setBigNotificationDataFromGeofence(geofenceMetadata)
+
+                        toggleBigNotificationBoxElements(true)
+                        vibrator.vibrate(3000)
+
+                        // Play sound
+                        bigNotificationMediaPlayer = MediaPlayer.create(this, R.raw.big_sound)
+                        bigNotificationMediaPlayer?.setAudioStreamType(AudioManager.STREAM_MUSIC)
+                        bigNotificationMediaPlayer?.isLooping = true
+                        bigNotificationMediaPlayer?.start()
+
+                        // Flash button
+                        val animation = AlphaAnimation(1F, 0F)
+                        animation.duration = 200
+                        animation.interpolator = LinearInterpolator()
+                        animation.repeatCount = Animation.INFINITE
+                        animation.repeatMode = Animation.REVERSE
+                        button.startAnimation(animation)
+                    }, 60000)
+                }
+                "small" -> {
+                    mode = "small_notification"
+                    setSmallNotificationDataFromGeofence(geofenceMetadata)
+                    toggleSmallNotificationBoxElements(true)
+                    notificationLock = true
+                    vibrator.vibrate(3000)
+
+                    // Play sound
+                    smallNotificationMediaPlayer = MediaPlayer.create(this, R.raw.small_sound)
+                    smallNotificationMediaPlayer?.setAudioStreamType(AudioManager.STREAM_MUSIC)
+                    smallNotificationMediaPlayer?.isLooping = true
+                    smallNotificationMediaPlayer?.start()
+
+                    // Flash button
+                    val animation = AlphaAnimation(1F, 0F)
+                    animation.duration = 200
+                    animation.interpolator = LinearInterpolator()
+                    animation.repeatCount = Animation.INFINITE
+                    animation.repeatMode = Animation.REVERSE
+                    button.startAnimation(animation)
+                }
+
+            }
+        }
+    }
+
     private fun processNavigationBeacon(navigationBeacon: Beacon?) {
         val app = applicationContext as TomoApplication
 
@@ -496,6 +577,20 @@ class DefaultActivity : AppCompatActivity() {
         navigationText = navigationBeacon?.text
     }
 
+    private fun processNavigationalGeofence(geofenceMetadata: JSONObject) {
+        if (geofenceMetadata["tag"] == "gate") {
+            reachedGate = true
+            navigationTextToggleHandler?.removeCallbacks(navigationTextToggleRunnable)
+            reachedText.visibility = View.VISIBLE
+            needle.visibility = View.INVISIBLE
+            timeToGate.visibility = View.INVISIBLE
+        } else {
+            timeToGateText = geofenceMetadata["time"] as String
+            navigationText = geofenceMetadata["text"] as String
+            geofenceBearing = (geofenceMetadata["bearing"] as String).toDouble()
+        }
+    }
+
     private fun processSecurityBeacon(securityBeacon: Beacon?) {
         airlineTicketDataOverride = true
         airlineTicketObservableSwitch.onNext(false)
@@ -503,6 +598,16 @@ class DefaultActivity : AppCompatActivity() {
 
         app.ticket?.boardingTime  = securityBeacon?.boardingTime
         app.ticket?.departureTime = securityBeacon?.departureTime
+        updateTicketData(app.ticket!!)
+    }
+
+    private fun processSecurityGeofence(geofenceMetadata: JSONObject) {
+        airlineTicketDataOverride = true
+        airlineTicketObservableSwitch.onNext(false)
+        val app = applicationContext as TomoApplication
+
+        app.ticket?.boardingTime = geofenceMetadata["boarding_time"] as String
+        app.ticket?.departureTime = geofenceMetadata["departure_time"] as String
         updateTicketData(app.ticket!!)
     }
 
@@ -561,6 +666,12 @@ class DefaultActivity : AppCompatActivity() {
         bigNotificationIcon.setImageResource(R.drawable.big_notification)
     }
 
+    private fun setBigNotificationDataFromGeofence(geofenceMetadata: JSONObject) {
+        bigNotiBackground.setImageResource(R.drawable.big_noti_background)
+        bigNotificationText.text = geofenceMetadata["text"] as String
+        bigNotificationIcon.setImageResource(R.drawable.big_notification)
+    }
+
     /**
      * Sets visual elements for a big notification
      * such as gate change, go to gate reminder etc.
@@ -570,6 +681,13 @@ class DefaultActivity : AppCompatActivity() {
         timeline.setImageResource(R.drawable.timeline_green)
         smallNotificationText.text = beacon.text
         smallNotificationIcon.setImageResource(resources.getIdentifier(beacon.icon, "drawable", packageName))
+    }
+
+    private fun setSmallNotificationDataFromGeofence(geofenceMetadata: JSONObject) {
+        container.setImageResource(R.drawable.small_noti_background)
+        timeline.setImageResource(R.drawable.timeline_green)
+        smallNotificationText.text = geofenceMetadata["text"] as String
+        smallNotificationIcon.setImageResource(resources.getIdentifier(geofenceMetadata["icon"] as String, "drawable", packageName))
     }
 
     private fun getViewVisibility(visible: Boolean): Int {
