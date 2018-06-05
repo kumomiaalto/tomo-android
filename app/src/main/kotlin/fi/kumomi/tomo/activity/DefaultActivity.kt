@@ -130,14 +130,14 @@ class DefaultActivity : AppCompatActivity() {
 
                             processNavigationalGeofence(geofenceMetadata)
 
-                            when (geofenceMetadata["notification_type"]) {
+                            when (geofenceMetadata["notification_type"] as String) {
                                 "security" -> processSecurityGeofence(geofenceMetadata)
                                 "big", "small" -> {
                                     if (!notificationLock)
                                         processNotificationGeofence(it.geofence)
                                 }
+                                else -> Log.i(TAG, "Not a notification beacon")
                             }
-
                         }
                     }
 
