@@ -104,6 +104,7 @@ class DefaultActivity : AppCompatActivity() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
 
+        // Needle refresh rate value 1 --- this should be greater or equal
         val needleDirectionObservable = NeedleDirectionObservable.create(applicationContext as TomoApplication)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -266,6 +267,8 @@ class DefaultActivity : AppCompatActivity() {
                                     0.5f)
                         }
 
+                        // Needle refresh rate value 2 -- should be always lesser or equal to value 1
+                        // 60FPS values - value 1 - 18 or 17, value 2 - 17
                         an.duration = 17
                         an.repeatCount = 0
                         an.fillAfter = true
